@@ -3,7 +3,8 @@ import os
 import socket
 import fcntl
 import struct
-import subprocess 
+import subprocess
+import yaml
 from waveshare_epd import epd2in13_V4
 from PIL import Image, ImageDraw, ImageFont
 import time
@@ -91,6 +92,35 @@ def get_system_state():
     battery = get_battery_status()
     return ip, gps, alfa, battery
 
+def check_trackerjacker_active():
+    try:
+        result = subprocess.run(
+            ['/bin/systemctl', 'list-units', '--state=active', 'trackerjacker@*', '--no-legend', '--no-pager'],
+            check=False, capture_output=True, text=True
+        )
+        return bool(result.stdout.strip())
+    except Exception:
+        return False
+
+def get_wifi_map_stats():
+    yaml_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+    try:
+        with open(yaml_path, 'r') as f:
+            data = yaml.safe_load(f)
+        if not isinstance(data, dict):
+            return 0, 0
+        ap_count = 0
+        device_count = 0
+        for ssid, ap_dict in data.items():
+            if isinstance(ap_dict, dict):
+                for ap_mac, ap_details in ap_dict.items():
+                    ap_count += 1
+                    if isinstance(ap_details, dict) and isinstance(ap_details.get('devices'), dict):
+                        device_count += len(ap_details['devices'])
+        return ap_count, device_count
+    except Exception:
+        return 0, 0
+
 def show_sleep_image(epd, pause=2):
     try:
         epd.Clear(0xFF)
@@ -153,6 +183,20 @@ try:
         print("Image '/home/pi/GloopieGuardian/gpio/img/happy.png' not found. Skipping image.")
         img_happy = None
 
+    try:
+        img_map1 = Image.open('/home/pi/GloopieGuardian/gpio/img/mapping1.png').convert('RGBA')
+        img_map1 = img_map1.resize((100, 75), resample=Image.NEAREST)
+    except IOError:
+        print("Image '/home/pi/GloopieGuardian/gpio/img/mapping1.png' not found. Skipping image.")
+        img_map1 = None
+    
+    try:
+        img_map2 = Image.open('/home/pi/GloopieGuardian/gpio/img/mapping2.png').convert('RGBA')
+        img_map2 = img_map2.resize((100, 75), resample=Image.NEAREST)
+    except IOError:
+        print("Image '/home/pi/GloopieGuardian/gpio/img/mapping2.png' not found. Skipping image.")
+        img_map2 = None
+
     print("Initializing screen...")
     epd.init()
     epd.Clear(0xFF)
@@ -172,10 +216,11 @@ try:
 
     print("System Monitor Running... (Partial Refresh Active)")
     
-    last_state = None 
+    last_state = None
     start_time = time.time()
     is_bored = False
     is_happy = False
+    map_frame = False
 
     # 2. MAIN LOOP
     while True:
@@ -189,8 +234,10 @@ try:
         if elapsed_time > 30:
             start_time = time.time()
 
-        # Trigger update if the system state changed OR if Gloopie's mood just changed
-        if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy):
+        trackerjacker_active = check_trackerjacker_active()
+
+        # Trigger update if state changed, mood changed, or scanner is active (for animation)
+        if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy) or trackerjacker_active:
             ip, gps_ok, alfa_ok, battery_str = current_state
 
             dynamic_canvas = base_canvas.copy()
@@ -200,7 +247,14 @@ try:
             draw_dynamic.text((175, 5), f"{battery_str}", font=font, fill=0)
 
             # Handle Gloopie's mood (Images and Text)
-            if should_be_bored and not should_be_happy:
+            if trackerjacker_active:
+                ap_count, device_count = get_wifi_map_stats()
+                img_map = img_map1 if map_frame else img_map2
+                if img_map:
+                    dynamic_canvas.paste(img_map, (5, 25), mask=img_map)
+                draw_dynamic.text((125, 25), f"Tracking!\nAPs:  {ap_count}\nDevices: {device_count}", font=font, fill=0)
+                map_frame = not map_frame
+            elif should_be_bored and not should_be_happy:
                 if img_napping:
                     dynamic_canvas.paste(img_napping, (5, 25), mask=img_napping)
                 draw_dynamic.text((125, 25), "Gloopie is \nfeeling bored", font=font, fill=0)

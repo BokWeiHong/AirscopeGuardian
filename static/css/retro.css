@@ -1395,7 +1395,6 @@ body hr{
     margin: 15px;
     border: 4px solid #222;
     padding: 10px;
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.15);
     position: relative;
 }
 .log-header {

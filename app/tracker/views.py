@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 SAVES_DIR = '/home/pi/GloopieGuardian/app/tracker/saves'
 TRACKING_ENV_FILE = os.path.join(SAVES_DIR, 'tracking.env')
-TRACKING_SERVICE = 'trackerjacker-track.service'
+TRACKING_SERVICE = 'trackerjacker-track'
 
 def get_wireless_interface():
     try:
