@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'app.api_tester',
     'app.map',
     'app.tracker',
+    'app.tracker_history',
 ]
 
 MIDDLEWARE = [

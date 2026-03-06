@@ -1,4 +1,7 @@
 import subprocess
+import shutil
+import datetime
+import os
 from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
@@ -26,3 +29,15 @@ class Command(BaseCommand):
         except subprocess.CalledProcessError as e:
             self.stderr.write(self.style.ERROR(f'Failed to stop monitor mode: {e.stderr}'))
             raise CommandError('Encountered an error while trying to stop airmon-ng.')
+
+        wifi_map_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+        try:
+            if os.path.exists(wifi_map_path):
+                timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+                backup_path = f"{wifi_map_path}.{timestamp}.bak"
+                shutil.copy2(wifi_map_path, backup_path)
+                self.stdout.write(self.style.SUCCESS(f'Scan data saved: {backup_path}'))
+            else:
+                self.stdout.write(self.style.WARNING('No wifi_map.yaml found to save.'))
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f'Failed to save scan data: {str(e)}'))

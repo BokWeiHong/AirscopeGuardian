@@ -7,6 +7,31 @@
     <link rel="stylesheet" href="{% static 'css/retro.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/trackerjacker.png' %}">
     <title>TrackerJacker</title>
+
+    <style>
+    .action {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 0.15rem;
+        text-align: left;
+        margin-bottom: 10px;
+    }
+    .action p {
+        margin: 0;
+        line-height: 2;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 10px;
+    }
+    .action p img.icon-pixel {
+        vertical-align: middle;
+        width: 18px;
+        height: 18px;
+    }
+    </style>
 </head>
 
 <body class="retro">
@@ -37,7 +62,6 @@
                         <th>Connected Device MAC</th>
                         <th>Device Signal</th>
                         <th>Device Bytes</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="wifi-table-body">

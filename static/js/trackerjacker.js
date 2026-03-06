@@ -14,9 +14,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// --- Retro Alert Helper (uses .alert, .alert-title, .alert-message, .alert-btn in retro.css) ---
 function showAlert(title, message) {
-    // Remove any existing alert
     const existing = document.querySelector('.alert');
     if (existing) existing.remove();
 
@@ -45,6 +43,7 @@ function showAlert(title, message) {
 
 // --- Polling Logic ---
 let wifiPollingInterval = null;
+let trackerRunning = false;
 
 function startWiFiPolling() {
     // Prevent starting multiple intervals
@@ -129,16 +128,6 @@ function renderWiFiData(wifiData, tbody) {
                         <td>${devMac}</td>
                         <td>${devSignal}</td>
                         <td>${devBytes}</td>
-                        <td class="action-cell">
-                            <button onclick="trackDevice('${devMac}')" title="Track Device">
-                                <img src="/static/images/icon_track.png" class="icon-pixel" alt="Track">
-                            </button>
-                            
-                            ${firstDevice ? `
-                            <button onclick="mapAP('${apMac}')" title="Map This AP">
-                                <img src="/static/images/icon_map.png" class="icon-pixel" alt="Map">
-                            </button>` : ''}
-                        </td>
                     `;
                     
                     html += `</tr>`;
@@ -150,11 +139,6 @@ function renderWiFiData(wifiData, tbody) {
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-                    <td class="action-cell">
-                        <button class="icon-btn-sm" onclick="mapAP('${apMac}')" title="Map This AP">
-                            <img src="/static/images/icon_map.png" class="icon-pixel" alt="Map">
-                        </button>
-                    </td>
                 </tr>`;
             }
         }
@@ -163,13 +147,11 @@ function renderWiFiData(wifiData, tbody) {
     tbody.innerHTML = html;
 }
 
-function mapAP(apMac) {
-    console.log("Mapping AP:", apMac);
-    // Use fetch() to send this to a Django URL
-    // Example: fetch(`/api/map-ap/${apMac}/`)
-}
-
 function trackDevice(deviceMac) {
+    if (trackerRunning) {
+        showAlert('Tracker Active', 'Stop scanner before tracking a device.');
+        return;
+    }
     console.log("Tracking Device:", deviceMac);
     // Use fetch() to send this to a Django URL
     // Example: fetch(`/api/track-device/${deviceMac}/`)
@@ -243,6 +225,7 @@ function updateButtonsBasedOnStatus() {
         .then(resp => resp.json())
         .then(data => {
             const running = !!data.running;
+            trackerRunning = running;
             if (startBtn) startBtn.disabled = running;
             if (stopBtn) stopBtn.disabled = !running;
 

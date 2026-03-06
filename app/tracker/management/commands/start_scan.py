@@ -1,7 +1,5 @@
 import subprocess
 import os
-import shutil
-import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
@@ -25,29 +23,27 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(f'Failed to create directory for wifi map: {str(e)}'))
             raise CommandError('Aborting scan setup due to filesystem error.')
 
-        try:
-            airmon_cmd = ['sudo', 'airmon-ng', 'start', wifi_iface]
-            subprocess.run(airmon_cmd, check=True, capture_output=True, text=True)
-            self.stdout.write(self.style.SUCCESS(f'Monitor mode enabled successfully on {wifi_iface}.'))
+        existing_ifaces = os.listdir('/sys/class/net/')
+        if mon_iface in existing_ifaces:
+            self.stdout.write(self.style.WARNING(
+                f'Monitor interface {mon_iface} already exists. Skipping airmon-ng and proceeding.'
+            ))
+        else:
+            try:
+                airmon_cmd = ['sudo', 'airmon-ng', 'start', wifi_iface]
+                subprocess.run(airmon_cmd, check=True, capture_output=True, text=True)
+                self.stdout.write(self.style.SUCCESS(f'Monitor mode enabled successfully on {wifi_iface}.'))
 
-        except subprocess.CalledProcessError as e:
-            self.stderr.write(self.style.ERROR(f'Failed to start monitor mode: {e.stderr}'))
-            raise CommandError('Aborting scan setup due to airmon-ng failure.')
+            except subprocess.CalledProcessError as e:
+                self.stderr.write(self.style.ERROR(f'Failed to start monitor mode: {e.stderr}'))
+                raise CommandError('Aborting scan setup due to airmon-ng failure.')
 
         try:
-            if os.path.exists(wifi_map_path):
-                timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-                backup_path = f"{wifi_map_path}.{timestamp}.bak"
-                shutil.copy2(wifi_map_path, backup_path)
-                with open(wifi_map_path, 'w') as f:
-                    f.write('---\n')
-                self.stdout.write(self.style.SUCCESS(f'Backed up {wifi_map_path} -> {backup_path} and cleared file.'))
-            else:
-                with open(wifi_map_path, 'w') as f:
-                    f.write('---\n')
-                self.stdout.write(self.style.SUCCESS(f'Created new {wifi_map_path}.'))
+            with open(wifi_map_path, 'w') as f:
+                f.write('---\n')
+            self.stdout.write(self.style.SUCCESS(f'Cleared {wifi_map_path} for new scan.'))
         except Exception as e:
-            self.stderr.write(self.style.ERROR(f'Failed to backup/clear {wifi_map_path}: {str(e)}'))
+            self.stderr.write(self.style.ERROR(f'Failed to clear {wifi_map_path}: {str(e)}'))
             raise CommandError('Aborting scan setup due to wifi_map.yaml preparation failure.')
 
         try:
