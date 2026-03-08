@@ -326,7 +326,7 @@ document.getElementById("downloadCSV").addEventListener("click", () => {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `GloopieGuardian_${tableName}_${new Date().getTime()}.csv`);
+        link.setAttribute("download", `AirscopeGuardian_${tableName}_${new Date().getTime()}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -382,5 +382,5 @@ document.getElementById("downloadPDF").addEventListener("click", () => {
         firstPage = false;
     });
 
-    doc.save(`GloopieGuardian_Log_${new Date().getTime()}.pdf`);
+    doc.save(`AirscopeGuardian_Log_${new Date().getTime()}.pdf`);
 });

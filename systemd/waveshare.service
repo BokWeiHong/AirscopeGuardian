@@ -1,16 +1,16 @@
 [Unit]
-Description=Waveshare display service for GloopieGuardian
+Description=Waveshare display service for AirscopeGuardian
 After=multi-user.target
 
 [Service]
 User=pi
 Group=www-data
-WorkingDirectory=/home/pi/GloopieGuardian
+WorkingDirectory=/home/pi/AirscopeGuardian
 
-Environment="PATH=/home/pi/GloopieGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment=PYTHONUNBUFFERED=1
 
-ExecStart=/bin/bash -lc 'source /home/pi/GloopieGuardian/venv/bin/activate && exec python /home/pi/GloopieGuardian/gpio/waveshare.py'
+ExecStart=/bin/bash -lc 'source /home/pi/AirscopeGuardian/venv/bin/activate && exec python /home/pi/AirscopeGuardian/gpio/waveshare.py'
 Restart=on-failure
 RestartSec=5
 

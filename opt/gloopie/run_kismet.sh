@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LOG_DIR="opt/gloopie"
+LOG_DIR="opt/airscope"
 VENV_ACTIVATE="venv/bin/activate"
 ELIGIBLE_IFACE="$1"
 

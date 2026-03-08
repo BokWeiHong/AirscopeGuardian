@@ -11,8 +11,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         wifi_iface = options['interface']
         mon_iface = f'{wifi_iface}mon' 
-        tracker_path = '/home/pi/GloopieGuardian/venv/bin/trackerjacker'
-        wifi_map_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+        tracker_path = '/home/pi/AirscopeGuardian/venv/bin/trackerjacker'
+        wifi_map_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
 
         try:
             parent_dir = os.path.dirname(wifi_map_path)
@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
         try:
             tracker_cmd = [
-                'sudo',
+                '/home/pi/AirscopeGuardian/venv/bin/python',
                 tracker_path,
                 '--map',
                 '--map-file', wifi_map_path,

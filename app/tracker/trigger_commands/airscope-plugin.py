@@ -1,5 +1,5 @@
 """
-GloopieGuardian Target Tracker & Distance Estimator
+AirscopeGuardian Target Tracker & Distance Estimator
 """
 import math
 

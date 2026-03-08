@@ -1,5 +1,5 @@
 [Unit]
-Description=GloopieGuardian Django application
+Description=AirScopeGuardian Django application
 After=network.target
 
 [Service]
@@ -8,17 +8,17 @@ User=pi
 Group=www-data
 
 # Set to your project's directory
-WorkingDirectory=/home/pi/GloopieGuardian
+WorkingDirectory=/home/pi/AirscopeGuardian
 
-# Update PATH to point to your virtualenv's bin directory
-Environment="PATH=/home/pi/GloopieGuardian/venv/bin"
+# Update PATH to include virtualenv bin and system bins
+Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="DJANGO_SETTINGS_MODULE=config.settings"
 Environment="PYTHONUNBUFFERED=1"
 
 # Use Django's development server via manage.py runserver.
 # Note: `runserver` is for development only — not recommended for production.
-# Activate virtualenv before starting the server.
-ExecStart=/bin/bash -lc 'source /home/pi/GloopieGuardian/venv/bin/activate && exec python /home/pi/GloopieGuardian/manage.py runserver 0.0.0.0:8000'
+# Use the virtualenv python directly (avoids sourcing /etc/profile issues)
+ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/manage.py runserver 0.0.0.0:8000
 
 Restart=on-failure
 RestartSec=5s

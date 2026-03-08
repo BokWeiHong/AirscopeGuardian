@@ -1,6 +1,6 @@
-# GloopieGuardian
+# AirScopeGuardian
 
-GloopieGuardian is a Django-based WiFi/Kismet tracking and mapping project intended to run on a Raspberry Pi.
+AirScopeGuardian is a Django-based WiFi/Kismet tracking and mapping project intended to run on a Raspberry Pi.
 
 ## Features
 - Kismet log and pcap ingestion

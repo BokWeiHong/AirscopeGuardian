@@ -1,5 +1,5 @@
 """
-WSGI config for GloopieGuardian project.
+WSGI config for AirscopeGuardian project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

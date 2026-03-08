@@ -103,7 +103,7 @@ def check_trackerjacker_active():
         return False
 
 def get_wifi_map_stats():
-    yaml_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+    yaml_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
     try:
         with open(yaml_path, 'r') as f:
             data = yaml.safe_load(f)
@@ -129,14 +129,14 @@ def show_sleep_image(epd, pause=2):
         draw = ImageDraw.Draw(canvas)
 
         try:
-            sleep_img = Image.open('/home/pi/GloopieGuardian/gpio/img/sleeping.png').convert('RGBA')
+            sleep_img = Image.open('/home/pi/AirscopeGuardian/gpio/img/sleeping.png').convert('RGBA')
             sleep_img = sleep_img.resize((150, 80), resample=Image.NEAREST)
             canvas.paste(sleep_img, (40, 40), mask=sleep_img)
 
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 20), "GG out ~~", font=font, fill=0)
         except IOError:
-            print("Sleep image '/home/pi/GloopieGuardian/gpio/img/sleeping.png' not found. Showing text only.")
+            print("Sleep image '/home/pi/AirscopeGuardian/gpio/img/sleeping.png' not found. Showing text only.")
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 25), "GG out ~~", font=font, fill=0)
 
@@ -157,44 +157,44 @@ try:
     epd = epd2in13_V4.EPD()
     
     try:
-        font = ImageFont.truetype('/home/pi/GloopieGuardian/static/fonts/PressStart2P-Regular.ttf', 6)
+        font = ImageFont.truetype('/home/pi/AirscopeGuardian/static/fonts/PressStart2P-Regular.ttf', 6)
     except IOError:
         print("Custom font not found. Using default.")
         font = ImageFont.load_default()
 
     try:
-        img_gg = Image.open('/home/pi/GloopieGuardian/gpio/img/gg.png').convert('RGBA')
+        img_gg = Image.open('/home/pi/AirscopeGuardian/gpio/img/gg.png').convert('RGBA')
         img_gg = img_gg.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/GloopieGuardian/gpio/img/gg.png' not found. Skipping image.")
+        print("Image '/home/pi/AirscopeGuardian/gpio/img/gg.png' not found. Skipping image.")
         img_gg = None
 
     try:
-        img_napping = Image.open('/home/pi/GloopieGuardian/gpio/img/napping.png').convert('RGBA')
+        img_napping = Image.open('/home/pi/AirscopeGuardian/gpio/img/napping.png').convert('RGBA')
         img_napping = img_napping.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/GloopieGuardian/gpio/img/napping.png' not found. Skipping image.")
+        print("Image '/home/pi/AirscopeGuardian/gpio/img/napping.png' not found. Skipping image.")
         img_napping = None
     
     try:
-        img_happy = Image.open('/home/pi/GloopieGuardian/gpio/img/happy.png').convert('RGBA')
+        img_happy = Image.open('/home/pi/AirscopeGuardian/gpio/img/happy.png').convert('RGBA')
         img_happy = img_happy.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/GloopieGuardian/gpio/img/happy.png' not found. Skipping image.")
+        print("Image '/home/pi/AirscopeGuardian/gpio/img/happy.png' not found. Skipping image.")
         img_happy = None
 
     try:
-        img_map1 = Image.open('/home/pi/GloopieGuardian/gpio/img/mapping1.png').convert('RGBA')
+        img_map1 = Image.open('/home/pi/AirscopeGuardian/gpio/img/mapping1.png').convert('RGBA')
         img_map1 = img_map1.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/GloopieGuardian/gpio/img/mapping1.png' not found. Skipping image.")
+        print("Image '/home/pi/AirscopeGuardian/gpio/img/mapping1.png' not found. Skipping image.")
         img_map1 = None
     
     try:
-        img_map2 = Image.open('/home/pi/GloopieGuardian/gpio/img/mapping2.png').convert('RGBA')
+        img_map2 = Image.open('/home/pi/AirscopeGuardian/gpio/img/mapping2.png').convert('RGBA')
         img_map2 = img_map2.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/GloopieGuardian/gpio/img/mapping2.png' not found. Skipping image.")
+        print("Image '/home/pi/AirscopeGuardian/gpio/img/mapping2.png' not found. Skipping image.")
         img_map2 = None
 
     print("Initializing screen...")
@@ -246,7 +246,7 @@ try:
             draw_dynamic.text((25, 5), f"{ip}", font=font, fill=0)
             draw_dynamic.text((175, 5), f"{battery_str}", font=font, fill=0)
 
-            # Handle Gloopie's mood (Images and Text)
+            # Handle Airscope's mood (Images and Text)
             if trackerjacker_active:
                 ap_count, device_count = get_wifi_map_stats()
                 img_map = img_map1 if map_frame else img_map2
@@ -257,15 +257,15 @@ try:
             elif should_be_bored and not should_be_happy:
                 if img_napping:
                     dynamic_canvas.paste(img_napping, (5, 25), mask=img_napping)
-                draw_dynamic.text((125, 25), "Gloopie is \nfeeling bored", font=font, fill=0)
+                draw_dynamic.text((125, 25), "Airscope is \nfeeling bored", font=font, fill=0)
             elif should_be_happy:
                 if img_happy:
                     dynamic_canvas.paste(img_happy, (5, 25), mask=img_happy)
-                draw_dynamic.text((125, 25), "Gloopie is \nfeeling happy", font=font, fill=0)
+                draw_dynamic.text((125, 25), "Airscope is \nfeeling happy", font=font, fill=0)
             else:    
                 if img_gg:
                     dynamic_canvas.paste(img_gg, (5, 25), mask=img_gg)
-                draw_dynamic.text((125, 25), "Hello, \nGloopie here!", font=font, fill=0)
+                draw_dynamic.text((125, 25), "Hello, \nAirscope here!", font=font, fill=0)
 
             # Handle USB Status
             if gps_ok:

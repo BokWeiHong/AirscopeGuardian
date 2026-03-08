@@ -12,16 +12,15 @@ import signal
 # =========================
 # === KISMET SETTINGS ===
 # =========================
-LOG_FILE = "/opt/gloopie/kismet/kismet_output.log"
-START_SCRIPT = "/opt/gloopie/run_kismet.sh"
-IMPORT_SCRIPT = "/opt/gloopie/import_kismet.sh"
+LOG_FILE = "/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log"
+KISMET_IFACE_FILE = "/tmp/kismet_active_iface"
 
 # =========================
 # === WASMSHARK (STATIC SERVE) ===
 # =========================
 WASMSHARK_DIR = "/home/pi/wasmshark"
 WASMSHARK_PORT = 8085
-WASMSHARK_PCAP_DIR = "/home/pi/GloopieGuardian/kismet/logs"
+WASMSHARK_PCAP_DIR = "/home/pi/AirscopeGuardian/kismet/logs"
 WASMSHARK_PID_FILE = "/tmp/wasmshark.pid"
 WEB_BUILD_DIR = os.path.join(WASMSHARK_DIR, "dist/webshark")
 AUTO_PCAP_PATH = os.path.join(WEB_BUILD_DIR, "assets/auto.pcap")
@@ -56,24 +55,40 @@ def run_kismet(request):
 
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
-    with open(LOG_FILE, "w") as log:
-        subprocess.Popen(
-            ["sudo", START_SCRIPT, iface],
-            stdout=log,
-            stderr=log
-        )
+    # Persist interface name so stop_kismet knows which instance to stop
+    with open(KISMET_IFACE_FILE, "w") as f:
+        f.write(iface)
+
+    result = subprocess.run(
+        ["sudo", "systemctl", "start", f"kismet@{iface}"],
+        capture_output=True
+    )
+    if result.returncode != 0:
+        return JsonResponse({"error": result.stderr.decode()}, status=500)
 
     return JsonResponse({"status": "running"})
 
 
 @login_required
 def stop_kismet(request):
-    subprocess.run(
-        ["sudo", IMPORT_SCRIPT],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=False
-    )
+    iface = None
+    if os.path.exists(KISMET_IFACE_FILE):
+        with open(KISMET_IFACE_FILE) as f:
+            iface = f.read().strip()
+        os.remove(KISMET_IFACE_FILE)
+
+    if iface:
+        subprocess.run(
+            ["sudo", "systemctl", "stop", f"kismet@{iface}"],
+            check=False
+        )
+    else:
+        # Fallback: stop any running kismet@ instance
+        subprocess.run(
+            ["sudo", "systemctl", "stop", "kismet@.service"],
+            check=False
+        )
+
     return JsonResponse({"status": "stopped"})
 
 

@@ -30,7 +30,7 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(f'Failed to stop monitor mode: {e.stderr}'))
             raise CommandError('Encountered an error while trying to stop airmon-ng.')
 
-        wifi_map_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+        wifi_map_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
         try:
             if os.path.exists(wifi_map_path):
                 timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')

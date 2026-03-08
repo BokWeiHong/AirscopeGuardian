@@ -1,5 +1,5 @@
 """
-ASGI config for GloopieGuardian project.
+ASGI config for AirscopeGuardian project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

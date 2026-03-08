@@ -2,9 +2,8 @@
 set -euo pipefail
 
 # Absolute paths
-LOG_DIR="/opt/gloopie/kismet"
-VENV_ACTIVATE="/home/pi/GloopieGuardian/venv/bin/activate"
-PID_FILE="/opt/gloopie/kismet.pid"
+LOG_DIR="/home/pi/AirscopeGuardian/kismet/logs"
+VENV_ACTIVATE="/home/pi/AirscopeGuardian/venv/bin/activate"
 
 ELIGIBLE_IFACE="${1:-}"
 
@@ -29,11 +28,5 @@ if [[ -f "$VENV_ACTIVATE" ]]; then
 fi
 
 echo ">>> Starting Kismet on interface: $ELIGIBLE_IFACE"
-kismet -c "$ELIGIBLE_IFACE" > "${LOG_DIR}/kismet_output.log" 2>&1 &
-KISMET_PID=$!
-
-echo "$KISMET_PID" > "$PID_FILE"
-chmod 640 "$PID_FILE"
-echo ">>> Kismet started with PID $KISMET_PID"
-echo ">>> Logs: ${LOG_DIR}/kismet_output.log"
-exit 0
+# exec replaces the shell so systemd tracks kismet's PID directly (Type=simple)
+exec kismet --no-ncurses-wrapper -c "$ELIGIBLE_IFACE" -l "${LOG_DIR}/Kismet"
