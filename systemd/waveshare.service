@@ -10,7 +10,7 @@ WorkingDirectory=/home/pi/AirscopeGuardian
 Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment=PYTHONUNBUFFERED=1
 
-ExecStart=/bin/bash -lc 'source /home/pi/AirscopeGuardian/venv/bin/activate && exec python /home/pi/AirscopeGuardian/gpio/waveshare.py'
+ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/gpio/waveshare.py
 Restart=on-failure
 RestartSec=5
 
