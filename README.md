@@ -72,3 +72,19 @@ Troubleshooting
 - For the Waveshare e-ink service, systemd must call the project virtualenv python directly (the repo already includes a fixed `systemd/waveshare.service`).
 
 If you'd like, I can enable and start the services for you and push a commit with this README update.
+
+## PostgreSQL setup
+
+Run these SQL commands as a PostgreSQL superuser to create the database and user used by Django:
+
+```sql
+CREATE DATABASE mydatabase;
+CREATE USER myuser WITH PASSWORD 'mypassword';
+ALTER ROLE myuser SET client_encoding TO 'utf8';
+ALTER ROLE myuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE myuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE mydatabase TO myuser;
+ALTER DATABASE mydatabase OWNER TO myuser;
+```
+
+After creating the database, update your Django `DATABASES` setting (in `config/settings.py`) to use `django.db.backends.postgresql` and the credentials above, then run `python manage.py migrate`.
