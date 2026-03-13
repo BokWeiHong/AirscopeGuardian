@@ -1,2 +1,9 @@
 venv/
 wifi_map.yaml*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.kismet
+*.pcapng
