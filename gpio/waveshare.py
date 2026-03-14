@@ -4,6 +4,8 @@ import socket
 import fcntl
 import struct
 import subprocess
+import math
+import json
 import yaml
 from waveshare_epd import epd2in13_V4
 from PIL import Image, ImageDraw, ImageFont
@@ -93,6 +95,7 @@ def get_system_state():
     return ip, gps, alfa, battery
 
 def check_trackerjacker_active():
+    """Returns True if any trackerjacker@ mapping instance is active."""
     try:
         result = subprocess.run(
             ['/bin/systemctl', 'list-units', '--state=active', 'trackerjacker@*', '--no-legend', '--no-pager'],
@@ -101,6 +104,57 @@ def check_trackerjacker_active():
         return bool(result.stdout.strip())
     except Exception:
         return False
+
+def check_trackerjacker_track_active():
+    """Returns True if the trackerjacker-track (hunt/radar) service is active."""
+    try:
+        result = subprocess.run(
+            ['/bin/systemctl', 'is-active', 'trackerjacker-track.service'],
+            check=False, capture_output=True, text=True
+        )
+        return result.stdout.strip() == 'active'
+    except Exception:
+        return False
+
+TARGETS_JSON = '/home/pi/AirscopeGuardian/app/tracker/saves/targets.json'
+
+def get_targets():
+    """Return list of target dicts from the plugin's JSON store."""
+    try:
+        with open(TARGETS_JSON, 'r') as f:
+            data = json.load(f)
+        return list(data.values()) if isinstance(data, dict) else []
+    except Exception:
+        return []
+
+def draw_radar(draw, center_x, center_y, max_radius, targets):
+    """Draws a radar UI and places a blip per target scaled by distance."""
+    # Concentric rings
+    for r_frac in [1.0, 0.6, 0.3]:
+        r = int(max_radius * r_frac)
+        draw.ellipse(
+            (center_x - r, center_y - r, center_x + r, center_y + r),
+            outline=0
+        )
+    # Crosshairs
+    draw.line((center_x - max_radius, center_y, center_x + max_radius, center_y), fill=0)
+    draw.line((center_x, center_y - max_radius, center_x, center_y + max_radius), fill=0)
+    if not targets:
+        return
+    # Spread targets evenly around the radar at their scaled distances
+    scale = max_radius / 10  # 10 m maps to the outer ring
+    n = len(targets)
+    for i, target in enumerate(targets):
+        dist = target.get('dist', 10)
+        angle = (360.0 / n) * i + 45
+        pixel_dist = min(dist * scale, max_radius)
+        blip_x = int(center_x + pixel_dist * math.cos(math.radians(angle)))
+        blip_y = int(center_y - pixel_dist * math.sin(math.radians(angle)))
+        blip_r = 3
+        draw.ellipse(
+            (blip_x - blip_r, blip_y - blip_r, blip_x + blip_r, blip_y + blip_r),
+            fill=0
+        )
 
 def get_wifi_map_stats():
     yaml_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
@@ -235,9 +289,9 @@ try:
             start_time = time.time()
 
         trackerjacker_active = check_trackerjacker_active()
+        trackerjacker_track_active = check_trackerjacker_track_active()
 
-        # Trigger update if state changed, mood changed, or scanner is active (for animation)
-        if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy) or trackerjacker_active:
+        if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy) or trackerjacker_active or trackerjacker_track_active:
             ip, gps_ok, alfa_ok, battery_str = current_state
 
             dynamic_canvas = base_canvas.copy()
@@ -246,13 +300,27 @@ try:
             draw_dynamic.text((25, 5), f"{ip}", font=font, fill=0)
             draw_dynamic.text((175, 5), f"{battery_str}", font=font, fill=0)
 
-            # Handle Airscope's mood (Images and Text)
-            if trackerjacker_active:
+            if trackerjacker_track_active:
+                targets = get_targets()
+                closest = min(targets, key=lambda t: t.get('dist', 9999)) if targets else None
+
+                draw_radar(draw_dynamic, 55, 65, 40, targets)
+
+                draw_dynamic.text((110, 25), "== RADAR ==", font=font, fill=0)
+                if closest:
+                    draw_dynamic.text((110, 37), f"{closest['label']}", font=font, fill=0)
+                    draw_dynamic.text((110, 49), f"Dist:{closest['dist']:.1f}m", font=font, fill=0)
+                    draw_dynamic.text((110, 61), f"Tgts: {len(targets)}", font=font, fill=0)
+                    vendor = (closest.get('vendor') or 'N/A')[:9]
+                    draw_dynamic.text((110, 73), vendor, font=font, fill=0)
+                else:
+                    draw_dynamic.text((110, 37), "Scanning...", font=font, fill=0)
+            elif trackerjacker_active:
                 ap_count, device_count = get_wifi_map_stats()
                 img_map = img_map1 if map_frame else img_map2
                 if img_map:
                     dynamic_canvas.paste(img_map, (5, 25), mask=img_map)
-                draw_dynamic.text((125, 25), f"Tracking!\nAPs:  {ap_count}\nDevices: {device_count}", font=font, fill=0)
+                draw_dynamic.text((125, 25), f"Mapping!\nAPs:  {ap_count}\nDevices: {device_count}", font=font, fill=0)
                 map_frame = not map_frame
             elif should_be_bored and not should_be_happy:
                 if img_napping:

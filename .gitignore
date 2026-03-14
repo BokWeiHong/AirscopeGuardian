@@ -1,5 +1,7 @@
 venv/
 wifi_map.yaml*
+targets.json*
+tracking.log*
 __pycache__/
 *.pyc
 *.pyo
