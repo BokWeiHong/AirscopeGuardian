@@ -1,11 +1,19 @@
 venv/
 wifi_map.yaml*
+kismet_output.log*
 targets.json*
 tracking.log*
+migration/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.log
-*.kismet
-*.pcapng
+
+# Ignore Kismet capture/output files
+kismet_output*
+kismet/logs/
+
+# Ignore Django migration folders across all apps
+**/migrations/
+**/migrations/**

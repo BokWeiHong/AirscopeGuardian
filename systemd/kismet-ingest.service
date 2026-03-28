@@ -1,0 +1,38 @@
+[Unit]
+Description=AirScopeGuardian – Kismet Live Data Ingestion to PostgreSQL
+Documentation=https://github.com/your-org/AirscopeGuardian
+# Wait for Kismet's REST API port (2501) to be listening before we start.
+# kismet@.service must be started first; set that dependency with:
+#   systemctl start kismet@wlan0          (or whichever interface you use)
+After=network.target postgresql.service kismet.service
+Wants=postgresql.service kismet.service
+# If your Kismet instance uses a different interface, adjust the unit name above.
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+WorkingDirectory=/home/pi/AirscopeGuardian
+
+# Activate the project's virtualenv by pointing directly at its Python binary.
+Environment="PYTHONUNBUFFERED=1"
+Environment="DJANGO_SETTINGS_MODULE=config.settings"
+Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Wait up to 30 s for Kismet's REST API to come online before the first poll.
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 15); do curl -sf http://127.0.0.1:2501/system/status.json && break || sleep 2; done'
+
+ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/kismet/data_ingestion.py
+
+# Restart automatically on any failure (API drop, crash, etc.)
+Restart=on-failure
+RestartSec=10s
+
+# Route stdout/stderr to the systemd journal (view with: journalctl -u kismet-ingest -f)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kismet-ingest
+
+[Install]
+WantedBy=multi-user.target

@@ -9,7 +9,7 @@
    <title>Chart</title>
 </head>
 <body class="retro">
-   {% include "components/navbar_chart.html" %}
+   {% include "components/navbar.html" %}
 
    <div class="window">
       <div class="window-titlebar">
@@ -23,17 +23,6 @@
 
       <div class="window-content" style="padding: 0px;">
          <div class="select-header">
-            <label style="width: 50%;">
-               <strong>Scan ID:</strong>
-               <input
-                  type="number"
-                  id="scanIdInput"
-                  class="window-input"
-                  value="1"
-                  min="1"
-                  style="width: 50%;"
-               />
-            </label>
             <label style="width: 50%;">
                <input type="checkbox" id="selectAllTables">
                Select All Tables

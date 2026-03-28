@@ -1,0 +1,36 @@
+[Unit]
+Description=Kismet WiFi Scanner (auto-detects monitor-capable adapter)
+Documentation=https://www.kismetwireless.net/
+# Start after networking and before the ingestion pipeline
+After=network.target
+Before=kismet-ingest.service
+
+[Service]
+Type=simple
+# Must run as root to set monitor mode and capture raw frames
+User=root
+WorkingDirectory=/home/pi/AirscopeGuardian
+
+Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="DJANGO_SETTINGS_MODULE=config.settings"
+Environment="PYTHONUNBUFFERED=1"
+
+# Ensure the log directory exists before anything else
+ExecStartPre=/bin/bash -c 'mkdir -p /home/pi/AirscopeGuardian/kismet/logs && chmod 770 /home/pi/AirscopeGuardian/kismet/logs'
+
+# run_kismet.sh: auto-detects the adapter → monitor mode → kismet
+ExecStart=/home/pi/AirscopeGuardian/kismet/root-shell/run_kismet.sh
+
+# After Kismet stops, import step removed — manual import not enabled
+# ExecStopPost intentionally omitted to avoid automatic imports
+
+StandardOutput=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
+StandardError=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
+TimeoutStopSec=30
+
+# Restart automatically on crash; give the adapter 10 s to settle on reboot
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

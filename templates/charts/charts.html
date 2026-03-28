@@ -6,115 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/retro.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/chart_icon.ico' %}">
-    <title>Chart</title>
+    <title>Dashboard</title>
 </head>
 
 <body class="retro">
-    {% include "components/navbar_chart.html" %}
+    {% include "components/navbar.html" %}
 
-    <div class="window">
-        <div class="window-titlebar">
-            <span class="window-title">Select Your Scans - <b>* 1 new message</b></span>
-            <div class="window-buttons">
-                <span class="btn pixel minimize"></span>
-                <span class="btn pixel square"></span>
-                <span class="btn pixel close"></span>
-            </div>
-        </div>
-        <div class="window-content">
-            <div class="select-header">
-                <label><input type="checkbox" id="selectAll"> Select All</label>
-            </div>
-            <select id="scanSelector" multiple size="5"></select>
-            <span style="font-size: 8px; margin: 0.5rem;">*Drag to select multiple scans</span>
-        </div>
-        <div class="window-footer">
-            <input type="text" class="window-input" id="selectedScans" placeholder="No scans selected..." readonly />
-            <button class="window-btn" id="applyFilters">Apply Filters</button>
-        </div>
-    </div>
-
-    <div class="chart-overview">
-        <img src="{% static 'images/network.png' %}" alt="network">
-        <h3>Network Overview</h3>
-    </div>
-
+    <!-- ── Stats Overview ── -->
     <div class="chart-grid">
         <div class="chart-card">
-            <p class="chart-label">Total Scans</p>
-            <p class="chart-value" id="total-scans">0</p>
+            <p class="chart-label">Total Assets</p>
+            <p class="chart-value" id="stat-total">—</p>
         </div>
         <div class="chart-card">
             <p class="chart-label">Access Points</p>
-            <p class="chart-value" id="access-points">0</p>
+            <p class="chart-value" id="stat-aps">—</p>
         </div>
         <div class="chart-card">
-            <p class="chart-label">Connected Clients</p>
-            <p class="chart-value" id="connected-clients">0</p>
+            <p class="chart-label">Clients</p>
+            <p class="chart-value" id="stat-clients">—</p>
         </div>
         <div class="chart-card">
             <p class="chart-label">Avg Signal</p>
-            <p class="chart-value" id="avg-signal">0<span>dBm</span></p>
+            <p class="chart-value" id="stat-signal">—<span>dBm</span></p>
+        </div>
+        <div class="chart-card">
+            <p class="chart-label">Whitelisted</p>
+            <p class="chart-value" id="stat-whitelisted">—</p>
         </div>
     </div>
 
-    <div class="chart-wrapper">
-        <div class="chart-section">
-            <h2 class="chart-title">Top Manufacturers Distribution</h2>
-            <div class="chart-container">
-                <canvas id="avgSignalManufacturerChart" style="height: 300px; width: 300px;"></canvas>
-            </div>
+    <!-- ── Row 1: Asset Type + Channel Usage ── -->
+    <div class="chart-arrangement">
+        <div class="chart-placement col-3">
+            <canvas id="chartAssetType" style="height:300px;"></canvas>
         </div>
+        <div class="chart-placement col-9 full-on-tablet">
+            <canvas id="chartChannels" style="height:300px;"></canvas>
+        </div>
+    </div>
 
+    <!-- ── Row 2: Encryption + Severity ── -->
+    <div class="chart-arrangement">
+        <div class="chart-placement col-3">
+            <canvas id="chartEncryption" style="height:300px;"></canvas>
+        </div>
+        <div class="chart-placement col-3">
+            <canvas id="chartSeverity" style="height:300px;"></canvas>
+        </div>
+        <div class="chart-placement col-6 full-on-tablet">
+            <canvas id="chartVendors" style="height:300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- ── Recent Security Events Table ── -->
+    <div class="chart-wrapper">
         <div class="table-container">
-            <table class="styledTable" id="avgSignalManufacturerTable">
+            <table class="styledTable" id="recentEventsTable">
                 <thead>
                     <tr>
-                        <th>Manufacturer</th>
-                        <th>SSID</th>
-                        <th>Average Signal (dBm)</th>
+                        <th>MAC Address</th>
+                        <th>Event Type</th>
+                        <th>Severity</th>
+                        <th>Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- rows will be filled by JS -->
+                    <!-- filled by JS -->
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="chart-arrangement">
-        <div class="chart-placement col-3">
-            <canvas id="deviceTypePieChart" style="height: 300px; "></canvas>
-        </div>
-        <div class="chart-placement col-3">
-            <canvas id="encryptionPieChart" style="height: 300px;"></canvas>
-        </div>
-        <div class="chart-placement col-6 full-on-tablet">
-            <canvas id="signalDistributionChart" style="height: 300px;"></canvas>
-        </div>
-    </div>
-
-    <div class="chart-arrangement">
-        <div class="chart-placement col-9 full-on-tablet">
-            <canvas id="channelUsageChart" style="height: 300px"></canvas>
-        </div>
-        <div class="chart-placement col-3">
-            <canvas id="signalPieChart" style="height:300px;"></canvas>
-        </div>
-    </div>
-
-    <div class="chart-arrangement">
-        <div class="chart-placement col-6">
-            <canvas id="topManufacturersChart" style="height: 300px;"></canvas>
-        </div>
-        <div class="chart-placement col-6">
-            <canvas id="geolocationChart" style="height: 300px;"></canvas>
-        </div>
-    </div>
-    
-    <div class="chart-arrangement">
-        <div class="chart-placement col-3">
-            <canvas id="newVsReturningChart" style="height: 300px;"></canvas>
         </div>
     </div>
 
@@ -123,7 +83,5 @@
     <script src="{% static 'js/chart.umd.min.js' %}"></script>
     <script src="{% static 'js/retro.js' %}"></script>
     <script src="{% static 'js/charts_customize.js' %}"></script>
-    
 </body>
-
 </html>

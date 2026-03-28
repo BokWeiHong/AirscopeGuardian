@@ -1,45 +1,24 @@
 from rest_framework import serializers
-from .models import (
-    Scan, Device, DataSource, Alert, Packet, Client
-)
+from .models import Asset, SecurityEvent, HunterDispatchLog
 
-class ScanSerializer(serializers.ModelSerializer):
+
+class AssetSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Scan
+        model = Asset
         fields = "__all__"
 
-class DeviceSerializer(serializers.ModelSerializer):
-    scan_name = serializers.CharField(source="scan.name", read_only=True)
-    wigle_ref_data = serializers.SerializerMethodField()
+
+class SecurityEventSerializer(serializers.ModelSerializer):
+    asset_mac = serializers.CharField(source='asset.mac_address', read_only=True)
 
     class Meta:
-        model = Device
+        model = SecurityEvent
         fields = "__all__"
 
-class DataSourceSerializer(serializers.ModelSerializer):
-    scan_name = serializers.CharField(source="scan.name", read_only=True)
+
+class HunterDispatchLogSerializer(serializers.ModelSerializer):
+    target_mac = serializers.CharField(source='target_asset.mac_address', read_only=True)
 
     class Meta:
-        model = DataSource
-        fields = "__all__"
-
-class AlertSerializer(serializers.ModelSerializer):
-    scan_name = serializers.CharField(source="scan.name", read_only=True)
-
-    class Meta:
-        model = Alert
-        fields = "__all__"
-
-class PacketSerializer(serializers.ModelSerializer):
-    scan_name = serializers.CharField(source="scan.name", read_only=True)
-
-    class Meta:
-        model = Packet
-        fields = "__all__"
-
-class ClientSerializer(serializers.ModelSerializer):
-    scan_name = serializers.CharField(source="scan.name", read_only=True)
-
-    class Meta:
-        model = Client
+        model = HunterDispatchLog
         fields = "__all__"

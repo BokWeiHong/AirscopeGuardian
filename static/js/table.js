@@ -6,7 +6,6 @@ const tabContents        = document.getElementById("tabContents");
 const selectAllTables    = document.getElementById("selectAllTables");
 const activeFiltersInput = document.getElementById("activeFilters");
 const tablesContainer    = document.getElementById("tablesContainer");
-const scanIdInput        = document.getElementById("scanIdInput");
 
 let currentTab = null;
 
@@ -269,15 +268,7 @@ selectAllTables.addEventListener("change", e => {
 
 /* ---------- APPLY FILTERS ---------- */
 document.getElementById("applyFilters").addEventListener("click", () => {
-    const scanId = parseInt(scanIdInput.value, 10);
-
-    if (!scanId || scanId < 1) {
-        alert("Invalid Scan ID");
-        return;
-    }
-
     const payload = {
-        scan_id: scanId,
         tables: JSON.parse(activeFiltersInput.value || "{}")
     };
 

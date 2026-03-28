@@ -152,12 +152,12 @@ body hr{
 .retro-navbar {
     background: #222;
     color: #fff;
-    padding: 1rem;
+    padding: 0.4rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 2rem;
-    font-size: 1rem;
+    gap: 1rem;
+    font-size: 0.85rem;
     border-bottom: 4px solid #aa5201;
     position: sticky;
     top: 0;
@@ -197,7 +197,7 @@ body hr{
 }
 
 .retro-title {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     color: #c56001;
     font-weight: bold;
 }
@@ -221,7 +221,7 @@ body hr{
     background: none;
     border: none;
     color: #ffffff;
-    font-size: 2rem;
+    font-size: 1.6rem;
     cursor: pointer;
     margin-left: auto;
 }
@@ -234,9 +234,9 @@ body hr{
     .retro-navbar {
         flex-direction: column;
         align-items: stretch;
-        font-size: 0.75rem;
-        padding: 0.5rem;
-        gap: 0.5rem;
+        font-size: 0.7rem;
+        padding: 0.25rem;
+        gap: 0.25rem;
     }
     .retro-navbar-header {
         width: 100%;
@@ -246,10 +246,10 @@ body hr{
         display: none;
         flex-direction: column;
         border-top: 2px solid #ffffff;
-        gap: 1rem;
+        gap: 0.6rem;
         width: 100%;
         align-items: flex-start;
-        padding-top: 1rem;
+        padding-top: 0.5rem;
     }
     .retro-navlinks.open {
         display: flex;
@@ -264,7 +264,7 @@ body hr{
     }
     .retro-navlinks button {
         padding: 0px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
 }
 

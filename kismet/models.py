@@ -1,198 +1,126 @@
 from django.db import models
+from django.utils import timezone
 
-class Scan(models.Model):
-    name = models.CharField(max_length=100, null=True, blank=True)
-    file_path = models.CharField(max_length=255, null=True, blank=True)
-    imported_at = models.DateTimeField(auto_now_add=True)
+class Asset(models.Model):
+    """
+    Represents the continuous, current state of any physical device in the airspace.
+    Merges both Access Points and Clients into a single normalized table.
+    """
+    ASSET_TYPES = [
+        ('AP', 'Access Point'),
+        ('CLIENT', 'Client Device'),
+        ('UNKNOWN', 'Unknown RF Source'),
+    ]
+
+    # Core Identity
+    mac_address = models.CharField(max_length=17, unique=True, db_index=True)
+    vendor_oui = models.CharField(max_length=100, null=True, blank=True)
+    asset_type = models.CharField(max_length=10, choices=ASSET_TYPES, default='UNKNOWN', db_index=True)
+    
+    # Network Characteristics
+    ssid_alias = models.CharField(max_length=255, null=True, blank=True, help_text="Broadcasted SSID if AP")
+    operating_channel = models.IntegerField(null=True, blank=True)
+    is_encrypted = models.BooleanField(default=True)
+    
+    # Spatial Intelligence (Populated by the Python Middleware FSPL math)
+    smoothed_rssi = models.IntegerField(null=True, blank=True, help_text="Averaged dBm to prevent multipath fading spikes")
+    estimated_radius_meters = models.FloatField(null=True, blank=True, help_text="Calculated via Free-Space Path Loss")
+    
+    # Security & State Governance
+    is_whitelisted = models.BooleanField(default=False, db_index=True, help_text="True if authorized by IT")
+    first_seen = models.DateTimeField(default=timezone.now)
+    last_seen = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
-        db_table = "scans"
+        db_table = "infrastructure_assets"
+        ordering = ['-last_seen']
 
     def __str__(self):
-        return self.name or f"Scan {self.id}"
+        return f"{self.mac_address} ({self.asset_type}) - Radius: {self.estimated_radius_meters}m"
 
-class Device(models.Model):
-    scan = models.ForeignKey(
-        Scan,
-        on_delete=models.CASCADE,
-        related_name="devices"
-    )
 
-    # Identity
-    devkey = models.CharField(max_length=64)
-    devmac = models.CharField(max_length=17, null=True, blank=True)
-    phyname = models.CharField(max_length=50, null=True, blank=True)
-    type = models.CharField(max_length=50, null=True, blank=True)
+class SecurityEvent(models.Model):
+    """
+    Only logs an entry when an Asset violates the established baseline or policy.
+    """
+    SEVERITY_LEVELS = [
+        ('LOW', 'Low - Informational'),
+        ('MEDIUM', 'Medium - Suspicious Behavior'),
+        ('HIGH', 'High - Policy Violation'),
+        ('CRITICAL', 'Critical - Active Threat'),
+    ]
+
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='security_events')
     
-    # Association Logic Helper Flags
-    is_ap = models.BooleanField(default=False, db_index=True)
-    is_client = models.BooleanField(default=False, db_index=True)
-
-    # Network info
-    ssid = models.CharField(max_length=255, null=True, blank=True)
-    channel = models.CharField(max_length=20, null=True, blank=True)
-    encryption = models.CharField(max_length=100, null=True, blank=True)
-    manufacturer = models.CharField(max_length=100, null=True, blank=True)
-    
-    # Wi-Fi Specifics (Parsed from JSON)
-    probed_ssids = models.JSONField(null=True, blank=True)    # For Clients: SSIDs they search for
-    advertised_ssids = models.JSONField(null=True, blank=True) # For APs: SSIDs they broadcast
-
-    # Signal metrics
-    strongest_signal = models.IntegerField(null=True, blank=True)
-    avg_signal = models.FloatField(null=True, blank=True)
-    last_signal = models.IntegerField(null=True, blank=True)
-
-    # Observation time
-    first_time = models.DateTimeField(null=True, blank=True)
-    last_time = models.DateTimeField(null=True, blank=True)
-
-    # GPS info
-    min_lat = models.FloatField(null=True, blank=True)
-    max_lat = models.FloatField(null=True, blank=True)
-    min_lon = models.FloatField(null=True, blank=True)
-    max_lon = models.FloatField(null=True, blank=True)
-    avg_lat = models.FloatField(null=True, blank=True)
-    avg_lon = models.FloatField(null=True, blank=True)
-
-    # Traffic metrics
-    bytes_data = models.BigIntegerField(null=True, blank=True)
-    packets_seen = models.BigIntegerField(null=True, blank=True)
-    clients_count = models.IntegerField(null=True, blank=True)
-
-    # Raw Kismet JSON
-    device_json = models.JSONField(null=True, blank=True)
+    event_type = models.CharField(max_length=100, help_text="e.g., 'Shadow IT Detected', 'Radius Anomaly'")
+    severity = models.CharField(max_length=10, choices=SEVERITY_LEVELS, default='MEDIUM', db_index=True)
+    description = models.TextField(null=True, blank=True)
 
     class Meta:
-        db_table = "devices"
-        indexes = [
-            models.Index(fields=["scan"]),
-            models.Index(fields=["devmac"]),
-            models.Index(fields=["type"]),
-            models.Index(fields=["avg_lat", "avg_lon"]),
-        ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["scan", "devkey"],
-                name="unique_device_per_scan"
-            )
-        ]
+        db_table = "security_events"
+        ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.devmac or 'Unknown'} ({self.type or 'Device'})"
+        return f"[{self.severity}] {self.event_type} - {self.asset.mac_address}"
 
-class Client(models.Model):
-    scan = models.ForeignKey(
-        Scan,
-        on_delete=models.CASCADE,
-        related_name="clients"
-    )
 
-    # The 'parent' device record (usually the AP)
-    device = models.ForeignKey(
-        Device,
-        on_delete=models.CASCADE,
-        related_name="associated_clients"
-    )
+class HunterDispatchLog(models.Model):
+    """
+    The Immutable Audit Ledger.
+    Records every instance where the active Tactical Node is deployed.
+    """
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Tracking in Progress'),
+        ('RESOLVED', 'Threat Neutralized'),
+        ('ORPHANED', 'Node Disconnected / Timeout'),
+    ]
 
-    # Identity of the peer
-    client_mac = models.CharField(max_length=17, db_index=True)
-    bssid = models.CharField(max_length=17, null=True, blank=True)
-    bssid_key = models.CharField(max_length=64, null=True, blank=True)
-
-    # Connection Status
-    is_associated = models.BooleanField(default=False)
-    client_type = models.CharField(max_length=50, null=True, blank=True)
-    decrypted = models.BooleanField(default=False)
-
-    # Traffic specific to this pair
-    datasize = models.BigIntegerField(default=0)
-    num_retries = models.IntegerField(default=0)
-
-    # Time & Location
-    first_time = models.DateTimeField(null=True, blank=True)
-    last_time = models.DateTimeField(null=True, blank=True)
-    last_lat = models.FloatField(null=True, blank=True)
-    last_lon = models.FloatField(null=True, blank=True)
-
-    # Raw JSON
-    client_json = models.JSONField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+    admin_id = models.CharField(max_length=150, help_text="Username of the Administrator who authorized the dispatch")
+    target_asset = models.ForeignKey(Asset, on_delete=models.DO_NOTHING, related_name='dispatch_history')
+    locked_channel = models.IntegerField(help_text="The exact channel the Hunter Node was commanded to lock onto")
+    
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ACTIVE')
+    resolution_notes = models.TextField(null=True, blank=True, help_text="Notes entered by Admin after physical resolution")
 
     class Meta:
-        db_table = "clients"
-        unique_together = ("scan", "device", "client_mac")
-        indexes = [
-            models.Index(fields=["client_mac"]),
-            models.Index(fields=["bssid"]),
-        ]
+        db_table = "audit_dispatch_ledger"
+        ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.client_mac} -> {self.device.devmac}"
+        return f"Dispatch {self.id} | Target: {self.target_asset.mac_address} | Status: {self.status}"
 
-class Packet(models.Model):
-    """Individual packet records from the 'packets' table"""
-    scan = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name="packets")
-    device = models.ForeignKey(Device, on_delete=models.SET_NULL, null=True, blank=True, related_name="packets")
 
-    ts_sec = models.IntegerField(db_index=True)
-    ts_usec = models.IntegerField(null=True, blank=True)
-    timestamp = models.DateTimeField(db_index=True)
-    
-    sourcemac = models.CharField(max_length=17, null=True, blank=True)
-    destmac = models.CharField(max_length=17, null=True, blank=True)
-    transmac = models.CharField(max_length=17, null=True, blank=True)
-    
-    frequency = models.IntegerField(null=True, blank=True)
-    signal = models.IntegerField(null=True, blank=True)
-    datarate = models.FloatField(null=True, blank=True)
-    packet_len = models.IntegerField(null=True, blank=True)
+class SystemMessage(models.Model):
+    """
+    Operational logs, system health, and debug messages (from Kismet or the Middleware).
+    Kept strictly separate from SecurityEvents.
+    """
+    LEVEL_CHOICES = [
+        ('DEBUG', 'Debug Trace'),
+        ('INFO', 'General Information'),
+        ('WARNING', 'Warning / Degradation'),
+        ('ERROR', 'Component Error'),
+        ('CRITICAL', 'Critical System Failure'),
+    ]
 
-    lat = models.FloatField(null=True, blank=True)
-    lon = models.FloatField(null=True, blank=True)
-    alt = models.FloatField(null=True, blank=True)
+    COMPONENT_CHOICES = [
+        ('KISMET_API', 'Kismet Ingestion Engine'),
+        ('MIDDLEWARE', 'Python Processing Pipeline'),
+        ('DASHBOARD', 'Django Web UI'),
+        ('HUNTER_NODE', 'Tactical Edge Node'),
+        ('DATABASE', 'PostgreSQL / SSD'),
+    ]
 
-    datasource = models.CharField(max_length=50, null=True, blank=True)
-    phyname = models.CharField(max_length=50, null=True, blank=True)
-    packet_json = models.JSONField(null=True, blank=True)
-
-    class Meta:
-        db_table = "packets"
-
-class DataSource(models.Model):
-    scan = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name="datasources")
-    uuid = models.CharField(max_length=64, unique=True)
-    typestring = models.CharField(max_length=50, null=True, blank=True)
-    definition = models.CharField(max_length=100, null=True, blank=True)
-    name = models.CharField(max_length=100, null=True, blank=True)
-    interface = models.CharField(max_length=50, null=True, blank=True)
-    
-    # Missing: stats
-    packet_count = models.BigIntegerField(default=0)
-    error_count = models.BigIntegerField(default=0)
-    
-    json = models.JSONField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='INFO', db_index=True)
+    component = models.CharField(max_length=20, choices=COMPONENT_CHOICES, default='MIDDLEWARE', db_index=True)
+    message = models.TextField()
 
     class Meta:
-        db_table = "datasources"
+        db_table = "system_messages"
+        ordering = ['-timestamp']
 
-class Alert(models.Model):
-    scan = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name="alerts")
-    timestamp = models.DateTimeField(db_index=True)
-    devmac = models.CharField(max_length=17, null=True, blank=True)
-    header = models.CharField(max_length=200, null=True, blank=True)
-    json = models.JSONField(null=True, blank=True)
-
-    class Meta:
-        db_table = "alerts"
-
-class DeviceData(models.Model):
-    """Temporal data from the 'data' table (Signal snapshots, etc)"""
-    scan = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name="device_data")
-    device = models.ForeignKey(Device, on_delete=models.SET_NULL, null=True, blank=True)
-    timestamp = models.DateTimeField(db_index=True)
-    devmac = models.CharField(max_length=17, null=True, blank=True)
-    type = models.CharField(max_length=50, null=True, blank=True)
-    json = models.JSONField(null=True, blank=True)
-
-    class Meta:
-        db_table = "data"
+    def __str__(self):
+        return f"[{self.level}] {self.component}: {self.message[:50]}..."

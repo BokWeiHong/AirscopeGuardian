@@ -348,8 +348,7 @@ try:
 
             # Perform the partial refresh
             epd.displayPartial(epd.getbuffer(dynamic_canvas.rotate(90, expand=True)))
-            
-            # Save states to prevent unnecessary updates on the next loop
+
             last_state = current_state
             is_bored = should_be_bored
             is_happy = should_be_happy

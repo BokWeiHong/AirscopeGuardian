@@ -10,14 +10,25 @@
             Home
         </a>
 
+        <a href="/charts/" class="retro-link {% if request.path == '/charts/' %}retro-link-active{% endif %}">
+            Dashboard
+        </a>
+
+        <a href="/map/" class="retro-link {% if request.path == '/map/' %}retro-link-active{% endif %}">
+            Map
+        </a>
+
+        <a href="/api_tester/" class="retro-link {% if request.path == '/api_tester/' %}retro-link-active{% endif %}">
+            Table
+        </a>
+
         <a href="/system/" class="retro-link {% if request.path == '/system/' %}retro-link-active{% endif %}">
             System
         </a>
 
-        <a href="/services/" class="retro-link {% if request.path == '/services/' %}retro-link-active{% endif %}">
-            Services
+        <a href="/settings/" class="retro-link {% if request.path == '/settings/' %}retro-link-active{% endif %}">
+            Settings
         </a>
-        
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit" class="retro-link" 
