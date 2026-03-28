@@ -1,9 +1,7 @@
 venv/
 wifi_map.yaml*
-kismet_output.log*
 targets.json*
 tracking.log*
-migration/
 __pycache__/
 *.pyc
 *.pyo
