@@ -25,7 +25,6 @@ urlpatterns = [
     path('charts/', include('app.charts.urls')),
     path('system/', include('app.system.urls')),
     path('api_tester/', include('app.api_tester.urls')),
-    path('map/', include('app.map.urls')),
     path('services/', include('app.services.urls')),
     path('tracker/', include('app.tracker.urls')),
     path('history/', include('app.tracker_history.urls')),

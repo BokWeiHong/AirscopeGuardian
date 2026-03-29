@@ -59,16 +59,93 @@
         </div>
     </div>
 
-    <!-- ── Recent Security Events Table ── -->
-    <div class="chart-wrapper">
-        <div class="table-container">
-            <table class="styledTable" id="recentEventsTable">
+    <div class="window">
+        <div class="window-titlebar">
+            <span class="window-title">Tactical Signal Radar</span>
+            
+            <select id="rangeSelector" class="window-select">
+                <option value="2">Range: 2m</option>
+                <option value="5">Range: 5m</option>
+                <option value="10" selected>Range: 10m</option>
+                <option value="25">Range: 25m</option>
+                <option value="50">Range: 50m</option>
+                <option value="100">Range: 100m</option>
+            </select>
+        </div>
+
+        <div class="window-content radar-content">
+            <div class="radar-left">
+                <canvas id="radarCanvas"></canvas>
+            </div>
+            <div class="radar-right">
+                <table class="styledTable" id="radarTable">
                 <thead>
                     <tr>
-                        <th>MAC Address</th>
-                        <th>Event Type</th>
-                        <th>Severity</th>
+                        <th>SSID</th>
+                        <th>MAC</th>
+                        <th>SIG</th>
+                        <th>DIST</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AP-to-Client Graph -->
+    <div class="window">
+        <div class="window-titlebar">
+            <span class="window-title">AP-to-Client Mapping</span>
+            <select id="apSelector" class="window-select" style="margin-right: 10px;">
+                <option value="">All</option>
+            </select>
+        </div>
+
+        <div class="window-content window-graph-content" style="display:flex; align-items:stretch; gap:12px;">
+            <!-- Graph -->
+            <div class="visual-pane" style="flex: none; position: relative; height:400px; width:40%; overflow:auto;">
+                <div id="cy" style="height:100%; width:100%;"></div>
+
+                <div class="graph-legend">
+                <span class="legend-item"><i class="ap-icon"></i> AP</span>
+                <span class="legend-item"><i class="client-icon"></i> Client</span>
+                </div>
+            </div>
+
+            <div class="data-pane" style="flex: 1; overflow-y: auto; height:400px;">
+                <p>Detected Associations</p>
+
+                <table class="styledTable" id="associationTable">
+                <thead>
+                    <tr>
+                        <th>AP</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Filled by JavaScript -->
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── System Messages ── -->
+    <div class="window">
+        <div class="window-titlebar">
+            <span class="window-title">System Messages</span>
+        </div>
+        <div class="window-content" style="padding: 10px; overflow-y: auto;">
+            <table class="styledTable" id="systemMessagesTable" style="width:100%;">
+                <thead>
+                    <tr>
                         <th>Timestamp</th>
+                        <th>Level</th>
+                        <th>Component</th>
+                        <th>Message</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,6 +158,7 @@
     {% include "components/footer.html" %}
 
     <script src="{% static 'js/chart.umd.min.js' %}"></script>
+    <script src="{% static 'js/cytoscape.min.js' %}"></script>
     <script src="{% static 'js/retro.js' %}"></script>
     <script src="{% static 'js/charts_customize.js' %}"></script>
 </body>

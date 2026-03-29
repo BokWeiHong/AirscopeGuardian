@@ -21,9 +21,6 @@ ExecStartPre=/bin/bash -c 'mkdir -p /home/pi/AirscopeGuardian/kismet/logs && chm
 # run_kismet.sh: auto-detects the adapter → monitor mode → kismet
 ExecStart=/home/pi/AirscopeGuardian/kismet/root-shell/run_kismet.sh
 
-# After Kismet stops, import step removed — manual import not enabled
-# ExecStopPost intentionally omitted to avoid automatic imports
-
 StandardOutput=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
 StandardError=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
 TimeoutStopSec=30

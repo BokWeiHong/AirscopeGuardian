@@ -19,6 +19,7 @@ class Asset(models.Model):
     
     # Network Characteristics
     ssid_alias = models.CharField(max_length=255, null=True, blank=True, help_text="Broadcasted SSID if AP")
+    connected_bssid = models.CharField(max_length=17, null=True, blank=True, db_index=True, help_text="For CLIENT type: MAC of the AP it is associated with")
     operating_channel = models.IntegerField(null=True, blank=True)
     is_encrypted = models.BooleanField(default=True)
     

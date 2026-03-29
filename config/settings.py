@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'app.charts',
     'app.system',
     'app.api_tester',
-    'app.map',
     'app.tracker',
     'app.tracker_history',
     'app.setting',

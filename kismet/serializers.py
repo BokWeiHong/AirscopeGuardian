@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Asset, SecurityEvent, HunterDispatchLog
+from .models import Asset, SecurityEvent, HunterDispatchLog, SystemMessage
 
 
 class AssetSerializer(serializers.ModelSerializer):
@@ -22,3 +22,9 @@ class HunterDispatchLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = HunterDispatchLog
         fields = "__all__"
+
+
+class SystemMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SystemMessage
+        fields = ['id', 'timestamp', 'level', 'component', 'message']
