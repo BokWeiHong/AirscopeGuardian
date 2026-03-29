@@ -1917,22 +1917,18 @@ input[type="checkbox"]:active {
     font-size: 10px;
 }
 .table-pager button {
-    font-family: 'Press Start 2P', monospace;
-    background: #c0c4cc;
-    padding: 2px 8px;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    font-family: inherit;
+    font-size: 10px;
+    padding: 5px 10px;
     cursor: pointer;
+    border: 2px solid #000;
+    background: #fff;
 }
 .table-pager button:disabled {
     opacity: 0.35;
     cursor: default;
 }
 .table-pager .pager-info {
-    font-size: 10px;
     flex: 1;
     text-align: center;
     color: #555;

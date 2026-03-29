@@ -55,7 +55,7 @@ function updateActiveFilters() {
 }
 
 /* ---------- TABLE RENDER (with pagination) ---------- */
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 100;
 
 // Stores full original rows per table for download and reset after search
 const _fullTableData = {};
@@ -175,7 +175,7 @@ function renderTables(data) {
                     terms.every(term =>
                         columns.some(col => String(row[col] ?? "").toLowerCase().includes(term))
                     )
-                )
+                  )
                 : [...rows];
             pageInfo.current = 0;
             refresh();
