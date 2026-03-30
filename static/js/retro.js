@@ -1,15 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Footer Clock
-    const footerTime = document.getElementById('footer-time');
-    function updateFooterTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        if (footerTime) footerTime.textContent = timeString;
-    }
-    setInterval(updateFooterTime, 1000);
-    updateFooterTime();
-
     // Tab Switching Logic
     const tabs = document.querySelectorAll('.window-tabs .tab');
     if (tabs.length > 0) {

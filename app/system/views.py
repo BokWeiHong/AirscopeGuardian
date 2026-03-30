@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 
 import psutil
 import platform
@@ -10,6 +11,7 @@ import time
 import subprocess
 import os
 import glob
+import socket as _socket
 
 def get_cpu_temperature():
     try:
@@ -145,4 +147,39 @@ def system_status(request):
         "gps_detected": gps_detected,
         "ssh_status": ssh_status,
         "cpu_temperature_c": cpu_temp,
+    })
+
+
+def _tcp_reachable(host, port, timeout=1.5):
+    """Return True if host:port accepts a TCP connection within timeout."""
+    try:
+        with _socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def heartbeat(request):
+    """
+    Lightweight health-check used by the SOC footer.
+    Returns JSON with the status of DB, Kismet API and tactical node.
+    No login required so the footer script can call it before page auth.
+    """
+    # --- PostgreSQL ---
+    try:
+        connection.ensure_connection()
+        db_ok = True
+    except Exception:
+        db_ok = False
+
+    # --- Kismet REST API (port 2501 on localhost) ---
+    kismet_ok = _tcp_reachable('127.0.0.1', 2501)
+
+    # --- Tactical node = self (loopback always reachable if this code runs) ---
+    node_ok = True
+
+    return JsonResponse({
+        'db': db_ok,
+        'kismet': kismet_ok,
+        'node': node_ok,
     })

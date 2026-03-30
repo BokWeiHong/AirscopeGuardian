@@ -51,12 +51,25 @@ class SecurityEvent(models.Model):
         ('CRITICAL', 'Critical - Active Threat'),
     ]
 
+    STATUS_CHOICES = [
+        ('OPEN',           'Open — Unhandled'),
+        ('ACKNOWLEDGED',   'Acknowledged — Under Investigation'),
+        ('FALSE_POSITIVE', 'Closed — False Positive'),
+        ('RESOLVED',       'Resolved — Threat Neutralized'),
+    ]
+
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='security_events')
-    
+
     event_type = models.CharField(max_length=100, help_text="e.g., 'Shadow IT Detected', 'Radius Anomaly'")
     severity = models.CharField(max_length=10, choices=SEVERITY_LEVELS, default='MEDIUM', db_index=True)
     description = models.TextField(null=True, blank=True)
+
+    # Triage state
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN', db_index=True)
+    analyst_notes = models.TextField(null=True, blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.CharField(max_length=150, null=True, blank=True)
 
     class Meta:
         db_table = "security_events"

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'kismet',
+    'app.assetmgr',
+    'app.triage',
     'app.home',
     'app.charts',
     'app.system',

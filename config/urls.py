@@ -39,5 +39,7 @@ urlpatterns = [
 
     # API endpoints
     path('', include('kismet.urls')),
+    path('', include('app.triage.urls')),
+    path('assetmgr/', include('app.assetmgr.urls')),
 
 ]

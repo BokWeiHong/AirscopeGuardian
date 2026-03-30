@@ -1,0 +1,115 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/retro.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/chart_icon.ico' %}">
+    <title>Asset Policy — Baseline Manager</title>
+    <style>
+        /* ── toolbar ── */
+        .am-toolbar {
+        display: flex; gap: 0.5rem; align-items: center;
+        flex-wrap: wrap; padding: 0.5rem 0 0.75rem;
+        }
+        .am-toolbar input[type=text], .am-toolbar select {
+        font-family: 'Press Start 2P', monospace;
+        font-size: 9px; padding: 5px 8px;
+        border: 2px solid #000; background: #fff;
+        }
+        .am-toolbar .window-btn { font-size: 9px; padding: 5px 10px; }
+        .am-mode { font-size: 9px; color: #666; margin-left: 0.25rem; font-style: italic; }
+        .am-count { font-size: 9px; margin-left: auto; }
+
+        /* ── status message ── */
+        .assetmgr-status {
+        font-size: 9px; padding: 5px 10px; border: 2px solid #000;
+        display: none; margin-bottom: 0.5rem;
+        }
+        .assetmgr-status-ok  { background: #aaffaa; }
+        .assetmgr-status-err { background: #ffaaaa; }
+
+        /* ── table overrides ── */
+        #assetTable { font-size: 10px; width: 100%; }
+        #assetTable th, #assetTable td { padding: 4px 6px; vertical-align: middle; }
+        #assetTable .ssid-input { border: 2px solid #aaa; font-size: 9px; width: 100%; box-sizing: border-box; }
+        .type-badge {
+        display: inline-block; font-size: 8px; padding: 1px 5px;
+        border: 2px solid #000;
+        }
+        .type-AP      { background: #d0f0ff; }
+        .type-CLIENT  { background: #fff0aa; }
+        .type-UNKNOWN { background: #eee; }
+
+        /* Allow horizontal scrolling; keep table width fixed so columns don't compress */
+        .table-wrap { overflow: auto; }
+        .table-wrap table { width: auto; min-width: 1100px; table-layout: fixed; }
+        #assetTable th, #assetTable td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 900px) {
+        .am-toolbar { flex-direction: column; align-items: flex-start; }
+        .am-count { margin-left: 0; }
+        }
+    </style>
+    </head>
+    <body class="retro">
+    {% include 'components/navbar.html' %}
+
+    <div class="window">
+        <div class="window-titlebar">
+        <span class="window-title">ASSET POLICY &amp; BASELINE MANAGER</span>
+        </div>
+        <div class="window-content" style="padding:0.75rem;">
+
+        <!-- ── Toolbar ── -->
+        <div class="am-toolbar">
+            <input type="text" id="vendorFilter" placeholder="Vendor OUI (e.g. Apple)" style="width:180px;">
+            <select id="wlFilter">
+            <option value="">All</option>
+            <option value="0">Unclassified</option>
+            <option value="1">Whitelisted</option>
+            </select>
+            <button class="window-btn" id="btnFilter">Filter</button>
+            <button class="window-btn" id="btnShowOrphans" title="Devices seen >24h, not yet whitelisted">Orphans (&gt;24h)</button>
+            <button class="window-btn" id="btnShowAll">Show All</button>
+            <button class="window-btn" id="btnBulkWhitelist" style="border-color:#00aa44;">&#10003; Bulk Whitelist</button>
+            <span class="am-mode" id="modeLabel"></span>
+            <span class="am-count" id="assetCount">—</span>
+        </div>
+
+        <!-- ── Status feedback ── -->
+        <div class="assetmgr-status" id="statusMsg"></div>
+
+        <!-- ── Table ── -->
+        <div class="table-wrap">
+            <table class="styledTable" id="assetTable">
+            <thead>
+                <tr>
+                <th style="width:28px;text-align:center;">
+                    <input type="checkbox" id="selectAll" title="Select all visible">
+                </th>
+                <th>MAC Address</th>
+                <th>Vendor</th>
+                <th>Type</th>
+                <th>SSID Alias / Note</th>
+                <th style="text-align:center;">Whitelisted</th>
+                <th style="text-align:center;">Ch</th>
+                <th>First Seen</th>
+                <th>Last Seen</th>
+                </tr>
+            </thead>
+            <tbody id="assetBody">
+                <tr><td colspan="9" style="text-align:center;padding:1rem;">Loading…</td></tr>
+            </tbody>
+            </table>
+        </div>
+
+        </div><!-- /window-content -->
+    </div><!-- /window -->
+
+    {% include "components/footer.html" %}
+
+    <script src="{% static 'js/assetmgr.js' %}"></script>
+    <script src="{% static 'js/retro.js' %}"></script>
+</body>
+</html>

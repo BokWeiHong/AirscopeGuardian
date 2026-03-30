@@ -326,14 +326,15 @@ function _renderGraph(filterMac = null) {
       added.add(ap.ap_mac);
     }
 
-    const clients = ap.clients || [];
+      const clients = ap.clients || [];
     const clientR = Math.min(90, 40 + clients.length * 12);
     clients.forEach((client, ci) => {
       const angle = (ci / Math.max(clients.length, 1)) * 2 * Math.PI;
       const cx    = apX + Math.cos(angle) * clientR;
       const cy    = apY + Math.sin(angle) * clientR;
       if (!added.has(client.mac_address)) {
-        elements.push({ data: { id: client.mac_address, label: client.vendor_oui || client.mac_address, type: 'CLIENT', mac: client.mac_address, signal: client.smoothed_rssi }, position: { x: cx, y: cy } });
+        // Show MAC address as the client label (avoid vendor/type display)
+        elements.push({ data: { id: client.mac_address, label: client.mac_address, type: 'CLIENT', mac: client.mac_address, signal: client.smoothed_rssi }, position: { x: cx, y: cy } });
         added.add(client.mac_address);
       }
       elements.push({ data: { id: `e-${client.mac_address}-${ap.ap_mac}`, source: client.mac_address, target: ap.ap_mac, type: 'Associated' } });

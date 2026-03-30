@@ -1,12 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AssetViewSet, SecurityEventViewSet, HunterDispatchLogViewSet, SystemMessageViewSet
+from .views import AssetViewSet, SystemMessageViewSet
 
 router = DefaultRouter()
-router.register(r'assets', AssetViewSet)
-router.register(r'events', SecurityEventViewSet)
-router.register(r'dispatch', HunterDispatchLogViewSet)
-router.register(r'messages', SystemMessageViewSet)
+router.register(r'assets', AssetViewSet, basename='assets')
+router.register(r'messages', SystemMessageViewSet, basename='messages')
 
 urlpatterns = [
     path('api/', include(router.urls)),

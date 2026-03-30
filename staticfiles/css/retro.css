@@ -1,6 +1,12 @@
-/* Standard page margin*/
+/* Standard page margin and full-height layout so footer sits at bottom */
+html, body {
+    height: 100%;
+}
 body {
-    margin: 0.5rem auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
     padding: 0 0.5rem;
     background-color: #ffdac7;
 }
@@ -404,6 +410,7 @@ body hr{
     border: 4px solid #000;
     box-shadow: 4px 4px 0px #333;
     background: #d0d4e0;
+    flex: 1 0 auto;
 }
 
 .window-titlebar {
@@ -815,15 +822,15 @@ body hr{
    Retro Footer Styles
    ========================================== */
 .retro-footer {
-    width: 100%;
     background: #222;
     color: #fff;
     border-top: 4px solid #aa5201;
     padding: 1rem 0;
     text-align: center;
     font-size: 0.9rem;
-    position: relative;
+    position: static;
     margin-top: 2rem;
+    box-sizing: border-box;
 }
 
 .footer-content {
@@ -831,6 +838,8 @@ body hr{
     justify-content: center;
     align-items: center;
     gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .footer-title {
@@ -1917,18 +1926,22 @@ input[type="checkbox"]:active {
     font-size: 10px;
 }
 .table-pager button {
-    font-family: inherit;
-    font-size: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    background: #c0c4cc;
+    padding: 2px 8px;
     border: 2px solid #000;
-    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
 }
 .table-pager button:disabled {
     opacity: 0.35;
     cursor: default;
 }
 .table-pager .pager-info {
+    font-size: 10px;
     flex: 1;
     text-align: center;
     color: #555;

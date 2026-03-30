@@ -4,11 +4,8 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg, Count
 
-from .models import Asset, SecurityEvent, HunterDispatchLog, SystemMessage
-from .serializers import (
-    AssetSerializer, SecurityEventSerializer, HunterDispatchLogSerializer,
-    SystemMessageSerializer
-)
+from .models import Asset, SystemMessage
+from .serializers import AssetSerializer, SystemMessageSerializer
 
 
 class StandardPagination(PageNumberPagination):
@@ -117,42 +114,8 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response(list(data.values()))
 
 
-class SecurityEventViewSet(viewsets.ModelViewSet):
-    queryset = SecurityEvent.objects.all()
-    serializer_class = SecurityEventSerializer
-    pagination_class = StandardPagination
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['timestamp', 'severity']
+# SecurityEventViewSet and HunterDispatchLogViewSet live in app.triage.views
 
-    @action(detail=False, methods=['get'], url_path='summary')
-    def summary(self, request):
-        by_severity = list(
-            SecurityEvent.objects.values('severity')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-        by_type = list(
-            SecurityEvent.objects.values('event_type')
-            .annotate(count=Count('id'))
-            .order_by('-count')[:10]
-        )
-        recent = list(
-            SecurityEvent.objects.order_by('-timestamp')[:5]
-            .values('timestamp', 'event_type', 'severity', 'asset__mac_address')
-        )
-        return Response({
-            'by_severity': by_severity,
-            'by_type': by_type,
-            'recent': recent,
-        })
-
-
-class HunterDispatchLogViewSet(viewsets.ModelViewSet):
-    queryset = HunterDispatchLog.objects.all()
-    serializer_class = HunterDispatchLogSerializer
-    pagination_class = StandardPagination
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['timestamp', 'status']
 
 
 class SystemMessageViewSet(viewsets.ReadOnlyModelViewSet):

@@ -1,18 +1,48 @@
 <footer class="retro-footer">
         <div class="footer-content">
-                <span class="footer-title">AirscopeGuardian &copy; {% now "Y" %}</span>
-                <span class="footer-time" id="footer-time"></span>
+                <div style="display:flex;flex-direction:column;gap:6px;align-items:center;width:100%;">
+                    <div style="font-size:12px;color:#fff;background:#880000;padding:6px;border:3px solid #000;width:100%;box-sizing:border-box;">DATA CLASSIFICATION: SENSITIVE - DO NOT EXFILTRATE</div>
+                    <div style="display:flex;align-items:center;gap:1rem;width:100%;justify-content:center;">
+                        <span class="footer-title">AirscopeGuardian &copy; {% now "Y" %}</span>
+                        <span class="footer-time" id="footer-time"></span>
+                            <span id="heartbeat-indicators" style="display:flex;gap:0.5rem;align-items:center;"></span>
+                            <span style="display:inline-block;width:1.25rem;"></span>
+                            <span id="rbac-identity" style="font-size:12px;color:#fff;"
+                            data-username="{% if request.user.is_authenticated %}{{ request.user.username|escape }}{% else %}Anonymous{% endif %}"
+                            data-role="{% if request.user.is_superuser %}Administrator{% elif request.user.is_staff %}Staff{% elif request.user.is_authenticated %}Viewer{% else %}Anonymous{% endif %}">
+                        </span>
+                    </div>
+                </div>
         </div>
 </footer>
 <script>
 (function(){
+    // Live Zulu (UTC) clock
     function updateFooterTime(){
         var el = document.getElementById('footer-time');
         if(!el) return;
         var d = new Date();
-        el.textContent = d.toLocaleString();
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var dayName = days[d.getUTCDay()];
+        var dayNum = String(d.getUTCDate()).padStart(2,'0');
+        var month = months[d.getUTCMonth()];
+        var year = d.getUTCFullYear();
+        var hours = String(d.getUTCHours()).padStart(2,'0');
+        var mins = String(d.getUTCMinutes()).padStart(2,'0');
+        var secs = String(d.getUTCSeconds()).padStart(2,'0');
+        el.textContent = `${dayName} ${dayNum} ${month} ${year} ${hours}:${mins}:${secs} UTC`;
     }
     updateFooterTime();
     setInterval(updateFooterTime, 1000);
+
+    // RBAC identity: populate from HTML data attributes
+    (function(){
+        const el = document.getElementById('rbac-identity');
+        if(!el) return;
+        const username = el.dataset.username || 'Anonymous';
+        const role = el.dataset.role || '';
+        el.textContent = username + (role ? ' (' + role + ')' : '');
+    })();
 })();
 </script>

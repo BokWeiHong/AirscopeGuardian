@@ -14,6 +14,14 @@
             Dashboard
         </a>
 
+        <a href="/triage/" class="retro-link {% if request.path == '/triage/' %}retro-link-active{% endif %}">
+            Triage
+        </a>
+
+        <a href="/assetmgr/whitelist/" class="retro-link {% if '/assetmgr/' in request.path %}retro-link-active{% endif %}">
+            Assets
+        </a>
+
         <a href="/api_tester/" class="retro-link {% if request.path == '/api_tester/' %}retro-link-active{% endif %}">
             Table
         </a>
