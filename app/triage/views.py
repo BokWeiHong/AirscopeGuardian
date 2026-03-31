@@ -48,11 +48,9 @@ class SecurityEventViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='queue')
     def queue(self, request):
-        """Return open/acknowledged events ordered by severity then timestamp."""
+        """Return all events ordered by severity then timestamp."""
         SEVERITY_ORDER = {'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}
-        events = SecurityEvent.objects.select_related('asset').exclude(
-            status__in=['RESOLVED', 'FALSE_POSITIVE']
-        ).order_by('-timestamp')
+        events = SecurityEvent.objects.select_related('asset').order_by('-timestamp')
         data = SecurityEventSerializer(events, many=True).data
         data = sorted(data, key=lambda e: (SEVERITY_ORDER.get(e['severity'], 9), e['timestamp']))
         return Response(data)

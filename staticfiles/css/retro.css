@@ -123,6 +123,7 @@ body hr{
     display: none;
     max-width: 450px;
     margin: 100px auto;
+    flex: none;
 }
 .retro-credits {
     position: fixed;

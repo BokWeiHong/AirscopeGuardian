@@ -133,14 +133,14 @@ async function doBulkWhitelist(vendor, ids) {
 document.addEventListener('DOMContentLoaded', () => {
     loadAssets('?page_size=500');
 
-    // Vendor text filter
+    // General search filter
     document.getElementById('btnFilter').addEventListener('click', () => {
         const v = document.getElementById('vendorFilter').value.trim();
         const wl = document.getElementById('wlFilter').value;
         let p = '?page_size=500';
-        if (v) p += '&vendor_oui=' + encodeURIComponent(v);
+        if (v) p += '&search=' + encodeURIComponent(v);
         if (wl) p += '&whitelisted=' + wl;
-        setMode(v ? 'Vendor: ' + v : wl === '0' ? 'Unclassified' : wl === '1' ? 'Whitelisted' : 'All');
+        setMode(v ? 'Search: ' + v : wl === '0' ? 'Unclassified' : wl === '1' ? 'Whitelisted' : 'All');
         loadAssets(p);
     });
 
@@ -163,16 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAssets('?page_size=500');
     });
 
-    // Bulk whitelist
+    // Bulk whitelist — always uses selected IDs
     document.getElementById('btnBulkWhitelist').addEventListener('click', async () => {
-        const v   = document.getElementById('vendorFilter').value.trim();
         const ids = getSelectedIds();
-        if (!v && !ids.length) {
-            showMsg('Select rows or enter a Vendor OUI to bulk whitelist.', false);
+        if (!ids.length) {
+            showMsg('Select rows to bulk whitelist.', false);
             return;
         }
         try {
-            const result = await doBulkWhitelist(v, ids);
+            const result = await doBulkWhitelist(null, ids);
             showMsg(`✓ Whitelisted ${result.updated} asset(s).`);
             loadAssets(_currentParams || '?page_size=500');
         } catch (e) {

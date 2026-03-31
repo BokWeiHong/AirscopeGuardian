@@ -41,5 +41,6 @@ urlpatterns = [
     path('', include('kismet.urls')),
     path('', include('app.triage.urls')),
     path('assetmgr/', include('app.assetmgr.urls')),
+    path('reports/', include('app.reports.urls')),
 
 ]

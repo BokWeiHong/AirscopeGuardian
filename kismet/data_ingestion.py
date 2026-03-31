@@ -84,7 +84,7 @@ def calculate_fspl_radius(rssi):
     if not rssi or rssi == 0:
         return None
     # Assuming TxPower = -30dBm at 1m, Path Loss Exponent = 3.0
-    return round(10 ** ((-30 - rssi) / (10 * 3.0)), 2)
+    return int(round(10 ** ((-30 - rssi) / (10 * 3.0))))
 
 def _log(level, component, message):
     """Write a message to the SystemMessage table and stdout."""

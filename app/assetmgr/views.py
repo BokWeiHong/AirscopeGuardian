@@ -19,7 +19,7 @@ class AssetMgrViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AssetMgrSerializer
     pagination_class = StandardPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['mac_address', 'vendor_oui', 'ssid_alias']
+    search_fields = ['mac_address', 'vendor_oui', 'ssid_alias', 'asset_type']
     ordering_fields = ['last_seen', 'first_seen', 'smoothed_rssi']
 
     def get_queryset(self):

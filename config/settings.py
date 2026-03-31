@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'app.tracker_history',
     'app.setting',
     'app.services',
+    'app.reports',
 ]
 
 MIDDLEWARE = [

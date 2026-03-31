@@ -57,16 +57,22 @@ async function loadQueue() {
 function renderQueue() {
     const tbody = document.getElementById('queueBody');
     const countEl = document.getElementById('queueCount');
+    const filterVal = document.getElementById('statusFilter')?.value || '';
 
-    if (!_queue.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="detail-empty">No active alerts — system is clear.</td></tr>';
-        if (countEl) countEl.textContent = '(0 alerts)';
+    const visible = filterVal ? _queue.filter(ev => ev.status === filterVal) : _queue;
+
+    if (!visible.length) {
+        const msg = filterVal ? `No alerts with status: ${filterVal}` : 'No active alerts — system is clear.';
+        tbody.innerHTML = `<tr><td colspan="5" class="detail-empty">${msg}</td></tr>`;
+        if (countEl) countEl.textContent = filterVal ? `(0 / ${_queue.length})` : '(0 alerts)';
         return;
     }
 
-    if (countEl) countEl.textContent = `(${_queue.length} alert${_queue.length !== 1 ? 's' : ''})`;
+    if (countEl) countEl.textContent = filterVal
+        ? `(${visible.length} of ${_queue.length})`
+        : `(${_queue.length} alert${_queue.length !== 1 ? 's' : ''})`;
 
-    tbody.innerHTML = _queue.map(ev => {
+    tbody.innerHTML = visible.map(ev => {
         const mac = ev.asset_mac || ev.asset?.mac_address || '—';
         const active = ev.id === _selectedId ? ' active-row' : '';
         return `<tr class="queue-row${active}" data-id="${ev.id}" onclick="selectRow(${ev.id})">
@@ -107,44 +113,51 @@ function renderDetail(ev) {
     const btnDisabled = isClosed ? 'disabled' : '';
 
     panel.innerHTML = `
-        <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-            <div style="flex:1; min-width:200px;">
-                <div style="margin-bottom:0.75rem;">
-                    ${field('Status',      statusBadge(ev.status))}
-                    ${field('Severity',    sevBadge(ev.severity))}
-                    ${field('Event Type',  ev.event_type)}
-                    ${field('Timestamp',   fmtTime(ev.timestamp))}
-                    ${field('Description', ev.description)}
-                </div>
-                <hr style="border:1px dashed #aaa; margin:0.5rem 0;">
-                <div>
-                    <div style="font-size:9px; font-weight:bold; margin-bottom:0.4rem; color:#444;">ASSET DETAILS</div>
-                    ${field('MAC Address', `<strong>${ev.asset_mac || '—'}</strong>`)}
-                    ${field('Vendor/OUI',  ev.asset_vendor)}
-                    ${field('Asset Type',  ev.asset_type)}
-                    ${field('Channel',     ev.asset_channel)}
-                    ${field('RSSI',        ev.asset_rssi !== null && ev.asset_rssi !== undefined ? ev.asset_rssi + ' dBm' : '—')}
-                    ${field('Radius',      ev.asset_radius !== null && ev.asset_radius !== undefined ? ev.asset_radius.toFixed(1) + ' m' : '—')}
-                    ${field('First Seen',  fmtTime(ev.asset_first_seen))}
-                </div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <div>
+                ${field('Status',      statusBadge(ev.status))}
+                ${field('Severity',    sevBadge(ev.severity))}
+                ${field('Event Type',  ev.event_type)}
+                ${field('Timestamp',   fmtTime(ev.timestamp))}
+                ${field('Description', ev.description)}
             </div>
-            <div style="flex:1; min-width:200px;">
+
+            <hr style="border:1px dashed #aaa; margin:0.3rem 0;">
+
+            <div>
+                <div style="font-size:12px; font-weight:bold; margin-bottom:0.3rem; color:#444;">ASSET DETAILS</div>
+                ${field('MAC Address', `<strong>${ev.asset_mac || '—'}</strong>`)}
+                ${field('Vendor/OUI',  ev.asset_vendor)}
+                ${field('Asset Type',  ev.asset_type)}
+                ${field('Channel',     ev.asset_channel)}
+                ${field('RSSI',        ev.asset_rssi !== null && ev.asset_rssi !== undefined ? ev.asset_rssi + ' dBm' : '—')}
+                ${field('Radius',      ev.asset_radius !== null && ev.asset_radius !== undefined ? '≈ ' + ev.asset_radius + ' m' : '—')}
+                ${field('First Seen',  fmtTime(ev.asset_first_seen))}
+            </div>
+
+            <div>
                 ${ev.resolved_by ? field('Resolved By', ev.resolved_by) : ''}
                 ${ev.resolved_at ? field('Resolved At', fmtTime(ev.resolved_at)) : ''}
-                <div style="font-size:9px; font-weight:bold; margin-bottom:0.4rem; color:#444;">ANALYST NOTES</div>
+            </div>
+
+            <div>
+                <div style="font-size:12px; font-weight:bold; margin-bottom:0.2rem; color:#444;">ANALYST NOTES</div>
                 <textarea id="notesArea" rows="5" placeholder="Enter analysis notes here..."${isClosed ? ' readonly' : ''}>${ev.analyst_notes || ''}</textarea>
-                ${ev.analyst_notes && isClosed ? '' : ''}
-                <div class="action-status-msg" id="actionMsg"></div>
-                <div class="action-row">
-                    <button class="action-btn btn-ack"      ${btnDisabled}
-                        onclick="doAction('acknowledge')">Acknowledge</button>
-                    <button class="action-btn btn-resolve"  ${btnDisabled}
-                        onclick="doAction('resolve')">Resolve</button>
-                    <button class="action-btn btn-fp"       ${btnDisabled}
-                        onclick="doAction('false-positive')">False +ve</button>
-        <button class="action-btn btn-dispatch" ${btnDisabled}
-                        onclick="doAction('dispatch-hunter')">Dispatch Hunter</button>
-                </div>
+            </div>
+
+            <div class="action-status-msg" id="actionMsg"></div>
+
+            <div class="action-row">
+                <button class="action-btn btn-ack"      ${btnDisabled}
+                    onclick="doAction('acknowledge')">Acknowledge</button>
+                <button class="action-btn btn-resolve"  ${btnDisabled}
+                    onclick="doAction('resolve')">Resolve</button>
+                <button class="action-btn btn-fp"       ${btnDisabled}
+                    onclick="doAction('false-positive')">False +ve</button>
+                <button class="action-btn btn-dispatch" ${btnDisabled}
+                    onclick="doAction('dispatch-hunter')">Dispatch Hunter</button>
+                <a class="action-btn" style="text-decoration:none; border-color:#555; color:#333;"
+                   href="/reports/export/incident/${ev.id}/" target="_blank">Export Incident</a>
             </div>
         </div>
     `;

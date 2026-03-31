@@ -169,6 +169,18 @@
                             <span class="queue-count" id="queueCount"></span>
                         </div>
                         <div class="window-content" style="padding: 0.2em;">
+                            <div style="padding: 0.3em 0.2em 0.4em;">
+                                <select id="statusFilter" onchange="renderQueue()"
+                                    style="font-family:'Press Start 2P',monospace; font-size:8px;
+                                           padding:4px 6px; border:2px solid #000; background:#fff;
+                                           cursor:pointer; width:100%; box-sizing:border-box;">
+                                    <option value="">ALL STATUSES</option>
+                                    <option value="OPEN">OPEN</option>
+                                    <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+                                    <option value="FALSE_POSITIVE">FALSE POSITIVE</option>
+                                    <option value="RESOLVED">RESOLVED</option>
+                                </select>
+                            </div>
                             <div class="queue-table-wrap">
                                 <table class="styledTable" style="font-size:9px; width:100%;">
                                     <thead>

@@ -25,7 +25,7 @@ class Asset(models.Model):
     
     # Spatial Intelligence (Populated by the Python Middleware FSPL math)
     smoothed_rssi = models.IntegerField(null=True, blank=True, help_text="Averaged dBm to prevent multipath fading spikes")
-    estimated_radius_meters = models.FloatField(null=True, blank=True, help_text="Calculated via Free-Space Path Loss")
+    estimated_radius_meters = models.IntegerField(null=True, blank=True, help_text="Estimated radius in metres (integer) via Free-Space Path Loss")
     
     # Security & State Governance
     is_whitelisted = models.BooleanField(default=False, db_index=True, help_text="True if authorized by IT")
