@@ -65,8 +65,6 @@ typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.5.0
 vine==5.1.0
-waveshare-epd @ git+https://github.com/waveshare/e-Paper.git@86aa9932f471a50157cf02fafadc2c1b4a965449#subdirectory=RaspberryPi_JetsonNano/python
-wcwidth==0.2.13
 weasyprint==68.1
 webencodings==0.5.1
 whitenoise==6.11.0
