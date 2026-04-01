@@ -22,10 +22,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', include('app.home.urls')),
-    path('charts/', include('app.charts.urls')),
     path('system/', include('app.system.urls')),
-    path('api_tester/', include('app.api_tester.urls')),
-    path('services/', include('app.services.urls')),
     path('tracker/', include('app.tracker.urls')),
     path('history/', include('app.tracker_history.urls')),
     path('settings/', include('app.setting.urls')),
@@ -36,11 +33,5 @@ urlpatterns = [
     # Authentication URLs
     path("login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
-
-    # API endpoints
-    path('', include('kismet.urls')),
-    path('', include('app.triage.urls')),
-    path('assetmgr/', include('app.assetmgr.urls')),
-    path('reports/', include('app.reports.urls')),
 
 ]

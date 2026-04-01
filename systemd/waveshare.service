@@ -3,14 +3,15 @@ Description=Waveshare display service for AirscopeGuardian
 After=multi-user.target
 
 [Service]
+# User is set automatically by install-service.sh — do not edit manually
 User=pi
 Group=www-data
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=%h/AirscopeGuardian
 
-Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=%h/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment=PYTHONUNBUFFERED=1
 
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/gpio/waveshare.py
+ExecStart=%h/AirscopeGuardian/venv/bin/python %h/AirscopeGuardian/gpio/waveshare.py
 Restart=on-failure
 RestartSec=5
 

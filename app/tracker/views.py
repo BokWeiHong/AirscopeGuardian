@@ -7,7 +7,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 
-SAVES_DIR = '/home/pi/AirscopeGuardian/app/tracker/saves'
+# Resolve saves dir relative to this file — works on any machine
+SAVES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saves')
 TRACKING_ENV_FILE = os.path.join(SAVES_DIR, 'tracking.env')
 TRACKING_SERVICE = 'trackerjacker-track'
 
@@ -155,7 +156,7 @@ def stop_network_scan(request):
 @login_required
 @require_GET
 def get_wifi_map_data(request):
-    yaml_file_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
+    yaml_file_path = os.path.join(SAVES_DIR, 'wifi_map.yaml')
 
     if not os.path.exists(yaml_file_path):
         return JsonResponse({

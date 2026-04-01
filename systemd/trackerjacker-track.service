@@ -5,18 +5,17 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=/root/AirscopeGuardian
 
-# Required if your plugin interacts with your Django Database
 Environment="DJANGO_SETTINGS_MODULE=config.settings"
 Environment="PYTHONUNBUFFERED=1"
-EnvironmentFile=/home/pi/AirscopeGuardian/app/tracker/saves/tracking.env
+EnvironmentFile=/root/AirscopeGuardian/app/tracker/saves/tracking.env
 
 # 1. Start Monitor Mode
 ExecStartPre=/usr/sbin/airmon-ng start ${TRACK_IFACE}
 
-# 2. Run Trackerjacker (Using the venv Python directly, no 'source activate' needed)
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/venv/bin/trackerjacker --track -m ${TRACK_MAC} -i ${TRACK_IFACE}mon --threshold 1 --channels-to-monitor ${TRACK_CHANNELS} --plugin /home/pi/AirscopeGuardian/app/tracker/trigger_commands/airscope-plugin.py
+# 2. Run Trackerjacker (venv Python, no 'source activate' needed)
+ExecStart=/root/AirscopeGuardian/venv/bin/python /root/AirscopeGuardian/venv/bin/trackerjacker --track -m ${TRACK_MAC} -i ${TRACK_IFACE}mon --threshold 1 --channels-to-monitor ${TRACK_CHANNELS} --plugin /root/AirscopeGuardian/app/tracker/trigger_commands/airscope-plugin.py
 
 # 3. Clean up Monitor Mode when stopped
 ExecStopPost=/usr/sbin/airmon-ng stop ${TRACK_IFACE}mon

@@ -30,7 +30,7 @@ class Trigger:
         self.history = {}
 
         self._lock = threading.Lock()
-        save_dir = '/home/pi/AirscopeGuardian/app/tracker/saves'
+        save_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'app', 'tracker', 'saves')
         os.makedirs(save_dir, exist_ok=True)
         self._save_path = os.path.join(save_dir, 'targets.json')
 

@@ -1,8 +1,0 @@
-from django.apps import AppConfig
-
-
-class TriageConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app.triage'
-    label = 'triage'
-    verbose_name = 'Threat Triage'

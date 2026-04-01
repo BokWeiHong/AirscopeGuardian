@@ -6,11 +6,24 @@
         </button>
     </div>
     <div class="retro-navlinks">
+        <a href="/home/" class="retro-link {% if request.path == '/tracker/' %}retro-link-active{% endif %}">
+            Home
+        </a>
+
         <a href="/tracker/" class="retro-link {% if request.path == '/tracker/' %}retro-link-active{% endif %}">
             Dashboard
         </a>
+
         <a href="/history/" class="retro-link {% if request.path == '/history/' %}retro-link-active{% endif %}">
             History
+        </a>
+
+        <a href="/system/" class="retro-link {% if request.path == '/system/' %}retro-link-active{% endif %}">
+            System
+        </a>
+
+        <a href="/setting/" class="retro-link {% if request.path == '/setting/' %}retro-link-active{% endif %}">
+            Setting
         </a>
     </div>
 </nav>

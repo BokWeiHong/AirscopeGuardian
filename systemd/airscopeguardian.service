@@ -3,22 +3,18 @@ Description=AirScopeGuardian Django application
 After=network.target
 
 [Service]
-# Replace 'pi' with the system user that should run the app
+# User is set automatically by install-service.sh — do not edit manually
 User=pi
 Group=www-data
 
-# Set to your project's directory
-WorkingDirectory=/home/pi/AirscopeGuardian
+# %h expands to the home directory of the User above — no manual path changes needed
+WorkingDirectory=%h/AirscopeGuardian
 
-# Update PATH to include virtualenv bin and system bins
-Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=%h/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="DJANGO_SETTINGS_MODULE=config.settings"
 Environment="PYTHONUNBUFFERED=1"
 
-# Use Django's development server via manage.py runserver.
-# Note: `runserver` is for development only — not recommended for production.
-# Use the virtualenv python directly (avoids sourcing /etc/profile issues)
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/manage.py runserver 0.0.0.0:8000
+ExecStart=%h/AirscopeGuardian/venv/bin/python %h/AirscopeGuardian/manage.py runserver --noreload 0.0.0.0:8000
 
 Restart=on-failure
 RestartSec=5s

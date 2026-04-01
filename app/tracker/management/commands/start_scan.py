@@ -2,6 +2,9 @@ import subprocess
 import os
 from django.core.management.base import BaseCommand, CommandError
 
+# Resolve project root regardless of where the app is deployed
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 class Command(BaseCommand):
     help = 'Enables monitor mode and starts trackerjacker in the background directly from Django.'
 
@@ -11,8 +14,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         wifi_iface = options['interface']
         mon_iface = f'{wifi_iface}mon' 
-        tracker_path = '/home/pi/AirscopeGuardian/venv/bin/trackerjacker'
-        wifi_map_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
+        tracker_path = os.path.join(_BASE_DIR, 'venv', 'bin', 'trackerjacker')
+        wifi_map_path = os.path.join(_BASE_DIR, 'app', 'tracker', 'saves', 'wifi_map.yaml')
 
         try:
             parent_dir = os.path.dirname(wifi_map_path)

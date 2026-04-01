@@ -11,20 +11,27 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env in project root (if present)
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4xl0d*_6br9#y6eg8j=!9wrpw#vq)e2$n@ev#i!=lb7ao@8cd('
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4xl0d*_6br9#y6eg8j=!9wrpw#vq)e2$n@ev#i!=lb7ao@8cd(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS can be a comma-separated list in the .env
+_hosts = os.getenv('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(',') if h.strip()]
 
 # Application definition
 
@@ -38,18 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'kismet',
-    'app.assetmgr',
-    'app.triage',
     'app.home',
-    'app.charts',
     'app.system',
-    'app.api_tester',
     'app.tracker',
     'app.tracker_history',
     'app.setting',
-    'app.services',
-    'app.reports',
 ]
 
 MIDDLEWARE = [
@@ -100,11 +100,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydb',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'mydatabase'),
+        'USER': os.getenv('DB_USER', 'myuser'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'mypassword'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -158,6 +158,13 @@ LOGIN_REDIRECT_URL = "/home/"  # after login, go here
 LOGOUT_REDIRECT_URL = "/login/"     # after logout, go here
 LOGIN_URL = "/login/"               # if not logged in, go here
 
-SESSION_COOKIE_AGE = 1800              # 30 mins max
+SESSION_COOKIE_AGE = 28800             # 8 hours
 SESSION_SAVE_EVERY_REQUEST = True      # reset timer on activity
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # optional extra safety
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Allow CSRF and cookies from all expected origins (LAN IP, localhost)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://192.168.100.247:8000',
+]

@@ -5,12 +5,10 @@ After=network.target
 [Service]
 Type=simple
 User=root
-# Adjust this to the folder containing your manage.py
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=/root/AirscopeGuardian
 
-# Use the Python executable from your virtual environment
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python manage.py start_scan %i
-ExecStop=/home/pi/AirscopeGuardian/venv/bin/python manage.py stop_scan %imon
+ExecStart=/root/AirscopeGuardian/venv/bin/python manage.py start_scan %i
+ExecStop=/root/AirscopeGuardian/venv/bin/python manage.py stop_scan %imon
 RemainAfterExit=yes
 
 [Install]

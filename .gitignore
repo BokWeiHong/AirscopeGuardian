@@ -1,4 +1,6 @@
 venv/
+.vscode/
+.env
 wifi_map.yaml*
 targets.json*
 tracking.log*

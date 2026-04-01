@@ -116,7 +116,10 @@ def check_trackerjacker_track_active():
     except Exception:
         return False
 
-TARGETS_JSON = '/home/pi/AirscopeGuardian/app/tracker/saves/targets.json'
+# Resolve all asset paths relative to this file — works on any machine
+_GPIO_DIR = os.path.dirname(os.path.abspath(__file__))
+_BASE_DIR = os.path.dirname(_GPIO_DIR)
+TARGETS_JSON = os.path.join(_BASE_DIR, 'app', 'tracker', 'saves', 'targets.json')
 
 def get_targets():
     """Return list of target dicts from the plugin's JSON store."""
@@ -157,7 +160,7 @@ def draw_radar(draw, center_x, center_y, max_radius, targets):
         )
 
 def get_wifi_map_stats():
-    yaml_path = '/home/pi/AirscopeGuardian/app/tracker/saves/wifi_map.yaml'
+    yaml_path = os.path.join(_BASE_DIR, 'app', 'tracker', 'saves', 'wifi_map.yaml')
     try:
         with open(yaml_path, 'r') as f:
             data = yaml.safe_load(f)
@@ -183,14 +186,14 @@ def show_sleep_image(epd, pause=2):
         draw = ImageDraw.Draw(canvas)
 
         try:
-            sleep_img = Image.open('/home/pi/AirscopeGuardian/gpio/img/sleeping.png').convert('RGBA')
+            sleep_img = Image.open(os.path.join(_GPIO_DIR, 'img', 'sleeping.png')).convert('RGBA')
             sleep_img = sleep_img.resize((150, 80), resample=Image.NEAREST)
             canvas.paste(sleep_img, (40, 40), mask=sleep_img)
 
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 20), "GG out ~~", font=font, fill=0)
         except IOError:
-            print("Sleep image '/home/pi/AirscopeGuardian/gpio/img/sleeping.png' not found. Showing text only.")
+            print("Sleep image not found. Showing text only.")
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 25), "GG out ~~", font=font, fill=0)
 
@@ -211,44 +214,44 @@ try:
     epd = epd2in13_V4.EPD()
     
     try:
-        font = ImageFont.truetype('/home/pi/AirscopeGuardian/static/fonts/PressStart2P-Regular.ttf', 6)
+        font = ImageFont.truetype(os.path.join(_BASE_DIR, 'static', 'fonts', 'PressStart2P-Regular.ttf'), 6)
     except IOError:
         print("Custom font not found. Using default.")
         font = ImageFont.load_default()
 
     try:
-        img_gg = Image.open('/home/pi/AirscopeGuardian/gpio/img/gg.png').convert('RGBA')
+        img_gg = Image.open(os.path.join(_GPIO_DIR, 'img', 'gg.png')).convert('RGBA')
         img_gg = img_gg.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/AirscopeGuardian/gpio/img/gg.png' not found. Skipping image.")
+        print("Image 'gg.png' not found. Skipping image.")
         img_gg = None
 
     try:
-        img_napping = Image.open('/home/pi/AirscopeGuardian/gpio/img/napping.png').convert('RGBA')
+        img_napping = Image.open(os.path.join(_GPIO_DIR, 'img', 'napping.png')).convert('RGBA')
         img_napping = img_napping.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/AirscopeGuardian/gpio/img/napping.png' not found. Skipping image.")
+        print("Image 'napping.png' not found. Skipping image.")
         img_napping = None
     
     try:
-        img_happy = Image.open('/home/pi/AirscopeGuardian/gpio/img/happy.png').convert('RGBA')
+        img_happy = Image.open(os.path.join(_GPIO_DIR, 'img', 'happy.png')).convert('RGBA')
         img_happy = img_happy.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/AirscopeGuardian/gpio/img/happy.png' not found. Skipping image.")
+        print("Image 'happy.png' not found. Skipping image.")
         img_happy = None
 
     try:
-        img_map1 = Image.open('/home/pi/AirscopeGuardian/gpio/img/mapping1.png').convert('RGBA')
+        img_map1 = Image.open(os.path.join(_GPIO_DIR, 'img', 'mapping1.png')).convert('RGBA')
         img_map1 = img_map1.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/AirscopeGuardian/gpio/img/mapping1.png' not found. Skipping image.")
+        print("Image 'mapping1.png' not found. Skipping image.")
         img_map1 = None
     
     try:
-        img_map2 = Image.open('/home/pi/AirscopeGuardian/gpio/img/mapping2.png').convert('RGBA')
+        img_map2 = Image.open(os.path.join(_GPIO_DIR, 'img', 'mapping2.png')).convert('RGBA')
         img_map2 = img_map2.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image '/home/pi/AirscopeGuardian/gpio/img/mapping2.png' not found. Skipping image.")
+        print("Image 'mapping2.png' not found. Skipping image.")
         img_map2 = None
 
     print("Initializing screen...")
