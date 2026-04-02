@@ -45,11 +45,18 @@ function retroPlugin(titleText) {
 async function loadStats() {
   try {
     const data = await (await fetch('/api/assets/stats/')).json();
-    document.getElementById('stat-total').textContent       = data.total_assets  ?? '—';
-    document.getElementById('stat-aps').textContent         = data.access_points ?? '—';
-    document.getElementById('stat-clients').textContent     = data.clients       ?? '—';
-    document.getElementById('stat-signal').innerHTML        = (data.avg_signal ?? '—') + '<span>dBm</span>';
-    document.getElementById('stat-whitelisted').textContent = data.whitelisted   ?? '—';
+    const setText = (id, value, isHtml = false) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isHtml) el.innerHTML = value;
+      else el.textContent = value;
+    };
+
+    setText('stat-total',       data.total_assets  ?? '—');
+    setText('stat-aps',         data.access_points ?? '—');
+    setText('stat-clients',     data.clients       ?? '—');
+    setText('stat-signal',      (data.avg_signal ?? '—') + '<span>dBm</span>', true);
+    setText('stat-whitelisted', data.whitelisted   ?? '—');
   } catch (e) { console.error('Stats error', e); }
 }
 
@@ -138,6 +145,12 @@ function _macAngle(mac) {
   return ((h >>> 0) / 0xffffffff) * 2 * Math.PI;
 }
 
+// Format an integer radius with ≈ prefix for display
+function estimateDist(dist) {
+  if (dist === null || dist === undefined) return '?';
+  return '≈ ' + dist + ' m';
+}
+
 function drawRadar() {
   if (!_radarCtx) return;
   const cx = RADAR_SIZE / 2, cy = RADAR_SIZE / 2, r = RADAR_SIZE / 2 - 20;
@@ -193,7 +206,7 @@ function _drawRadarTooltip(ap) {
   const lines = [
     (ap.ssid_alias || ap.mac_address).substring(0, 22),
     `RSSI: ${ap.smoothed_rssi ?? '?'} dBm`,
-    `Dist: ${ap.estimated_radius_meters ?? '?'}m`,
+    `Dist: ${estimateDist(ap.estimated_radius_meters)}`,
   ];
   _radarCtx.font = "9px 'Press Start 2P', monospace";
   const w = Math.max(...lines.map(l => _radarCtx.measureText(l).width)) + 20;
@@ -222,7 +235,7 @@ function _updateRadarTable() {
       const sig = ap.smoothed_rssi ?? -100;
       const sigClass = sig > -60 ? 'sig-high' : sig > -80 ? 'sig-med' : 'sig-low';
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${ap.ssid_alias || '<span style="color:#999">HIDDEN</span>'}</td><td>${ap.mac_address}</td><td class="${sigClass}">${sig}</td><td><strong>${ap.estimated_radius_meters ?? '?'}m</strong></td>`;
+      tr.innerHTML = `<td>${ap.ssid_alias || '<span style="color:#999">HIDDEN</span>'}</td><td>${ap.mac_address}</td><td class="${sigClass}">${sig}</td><td><strong>${estimateDist(ap.estimated_radius_meters)}</strong></td>`;
       tr.addEventListener('mouseenter', () => { radarHoveredAP = ap; drawRadar(); });
       tr.addEventListener('mouseleave', () => { radarHoveredAP = null; drawRadar(); });
       tbody.appendChild(tr);

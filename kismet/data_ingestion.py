@@ -25,8 +25,8 @@ KISMET_LOG_PATH = os.path.join(
 def _load_kismet_auth():
     search_paths = [
         "/root/.kismet/kismet_httpd.conf",
-        "/home/pi/.kismet/kismet_httpd.conf",
-        "/home/pi/kismet/conf/kismet_httpd.conf",
+        os.path.expanduser("~/.kismet/kismet_httpd.conf"),
+        os.path.expanduser("~/kismet/conf/kismet_httpd.conf"),
     ]
     user = os.environ.get("KISMET_USER")
     pwd  = os.environ.get("KISMET_PASS")

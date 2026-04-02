@@ -1,4 +1,11 @@
 venv/
+.vscode/
+
+# Environment secrets — never commit
+.env
+# But do track the example template
+!.env.example
+
 wifi_map.yaml*
 targets.json*
 tracking.log*

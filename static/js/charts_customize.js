@@ -45,11 +45,18 @@ function retroPlugin(titleText) {
 async function loadStats() {
   try {
     const data = await (await fetch('/api/assets/stats/')).json();
-    document.getElementById('stat-total').textContent       = data.total_assets  ?? '—';
-    document.getElementById('stat-aps').textContent         = data.access_points ?? '—';
-    document.getElementById('stat-clients').textContent     = data.clients       ?? '—';
-    document.getElementById('stat-signal').innerHTML        = (data.avg_signal ?? '—') + '<span>dBm</span>';
-    document.getElementById('stat-whitelisted').textContent = data.whitelisted   ?? '—';
+    const setText = (id, value, isHtml = false) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isHtml) el.innerHTML = value;
+      else el.textContent = value;
+    };
+
+    setText('stat-total',       data.total_assets  ?? '—');
+    setText('stat-aps',         data.access_points ?? '—');
+    setText('stat-clients',     data.clients       ?? '—');
+    setText('stat-signal',      (data.avg_signal ?? '—') + '<span>dBm</span>', true);
+    setText('stat-whitelisted', data.whitelisted   ?? '—');
   } catch (e) { console.error('Stats error', e); }
 }
 

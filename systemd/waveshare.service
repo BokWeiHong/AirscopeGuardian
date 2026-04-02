@@ -1,16 +1,17 @@
+# TEMPLATE — run install.sh to deploy. Do not copy manually.
 [Unit]
 Description=Waveshare display service for AirscopeGuardian
 After=multi-user.target
 
 [Service]
-User=pi
+User=@@SERVICE_USER@@
 Group=www-data
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=@@PROJECT_DIR@@
 
-Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=@@PROJECT_DIR@@/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment=PYTHONUNBUFFERED=1
 
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/gpio/waveshare.py
+ExecStart=@@PROJECT_DIR@@/venv/bin/python @@PROJECT_DIR@@/gpio/waveshare.py
 Restart=on-failure
 RestartSec=5
 

@@ -1,3 +1,4 @@
+# TEMPLATE — run install.sh to deploy. Do not copy manually.
 [Unit]
 Description=Trackerjacker Wi-Fi Scanner on %i
 After=network.target
@@ -6,11 +7,11 @@ After=network.target
 Type=simple
 User=root
 # Adjust this to the folder containing your manage.py
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=@@PROJECT_DIR@@
 
 # Use the Python executable from your virtual environment
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python manage.py start_scan %i
-ExecStop=/home/pi/AirscopeGuardian/venv/bin/python manage.py stop_scan %imon
+ExecStart=@@PROJECT_DIR@@/venv/bin/python manage.py start_scan %i
+ExecStop=@@PROJECT_DIR@@/venv/bin/python manage.py stop_scan %imon
 RemainAfterExit=yes
 
 [Install]

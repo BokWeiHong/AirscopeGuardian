@@ -1,3 +1,4 @@
+# TEMPLATE — run install.sh to deploy. Do not copy manually.
 [Unit]
 Description=AirScopeGuardian – Kismet Live Data Ingestion to PostgreSQL
 Documentation=https://github.com/your-org/AirscopeGuardian
@@ -10,20 +11,20 @@ Wants=postgresql.service kismet.service
 
 [Service]
 Type=simple
-User=pi
+User=@@SERVICE_USER@@
 Group=pi
 
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=@@PROJECT_DIR@@
 
 # Activate the project's virtualenv by pointing directly at its Python binary.
 Environment="PYTHONUNBUFFERED=1"
 Environment="DJANGO_SETTINGS_MODULE=config.settings"
-Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=@@PROJECT_DIR@@/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Wait up to 30 s for Kismet's REST API to come online before the first poll.
 ExecStartPre=/bin/bash -c 'for i in $(seq 1 15); do curl -sf http://127.0.0.1:2501/system/status.json && break || sleep 2; done'
 
-ExecStart=/home/pi/AirscopeGuardian/venv/bin/python /home/pi/AirscopeGuardian/kismet/data_ingestion.py
+ExecStart=@@PROJECT_DIR@@/venv/bin/python @@PROJECT_DIR@@/kismet/data_ingestion.py
 
 # Restart automatically on any failure (API drop, crash, etc.)
 Restart=on-failure

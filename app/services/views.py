@@ -8,19 +8,20 @@ import os
 import json
 import shutil
 import signal
+from django.conf import settings
 
 # =========================
 # === KISMET SETTINGS ===
 # =========================
-LOG_FILE = "/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log"
+LOG_FILE = str(settings.KISMET_LOG_PATH)
 KISMET_IFACE_FILE = "/tmp/kismet_active_iface"
 
 # =========================
 # === WASMSHARK (STATIC SERVE) ===
 # =========================
-WASMSHARK_DIR = "/home/pi/wasmshark"
+WASMSHARK_DIR = settings.WASMSHARK_DIR
 WASMSHARK_PORT = 8085
-WASMSHARK_PCAP_DIR = "/home/pi/AirscopeGuardian/kismet/logs"
+WASMSHARK_PCAP_DIR = str(settings.KISMET_PCAP_DIR)
 WASMSHARK_PID_FILE = "/tmp/wasmshark.pid"
 WEB_BUILD_DIR = os.path.join(WASMSHARK_DIR, "dist/webshark")
 AUTO_PCAP_PATH = os.path.join(WEB_BUILD_DIR, "assets/auto.pcap")

@@ -78,8 +78,8 @@ function renderTable() {
             <td><span class="type-badge type-${a.asset_type}">${a.asset_type}</span></td>
             <td>
                 <input class="ssid-input" data-id="${a.id}" data-orig="${alias}"
-                       value="${alias}" placeholder="Add note / alias…"
-                       style="width:100%;min-width:100px;padding:3px 5px;border:2px solid #aaa;font-size:10px;font-family:inherit;">
+                        value="${alias}" placeholder="Add note / alias…"
+                        style="width:100%;min-width:100px;padding:3px 5px;border:2px solid #aaa;font-size:10px;font-family:inherit;">
             </td>
             <td style="text-align:center;">
                 <input type="checkbox" class="wl-chk" data-id="${a.id}" ${wl ? 'checked' : ''}>

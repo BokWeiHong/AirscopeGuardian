@@ -10,21 +10,42 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load optional .env overrides (never committed to VCS)
+load_dotenv(BASE_DIR / '.env')
+
+# ---------------------------------------------------------------------------
+# Project-internal paths — always derived from BASE_DIR so the project works
+# regardless of where it is cloned.
+# ---------------------------------------------------------------------------
+KISMET_LOG_PATH = BASE_DIR / 'kismet' / 'logs' / 'kismet_output.log'
+KISMET_PCAP_DIR = BASE_DIR / 'kismet' / 'logs'
+
+# ---------------------------------------------------------------------------
+# External / system paths — override via .env on each machine as needed.
+# ---------------------------------------------------------------------------
+WASMSHARK_DIR = os.environ.get('WASMSHARK_DIR', str(Path.home() / 'wasmshark'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4xl0d*_6br9#y6eg8j=!9wrpw#vq)e2$n@ev#i!=lb7ao@8cd('
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-development-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = []
+# Safety: require a non-default SECRET_KEY when DEBUG is disabled in production.
+if not DEBUG and SECRET_KEY == 'django-insecure-development-key':
+    raise RuntimeError('SECRET_KEY must be set in environment when DEBUG is False')
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -45,8 +66,6 @@ INSTALLED_APPS = [
     'app.charts',
     'app.system',
     'app.api_tester',
-    'app.tracker',
-    'app.tracker_history',
     'app.setting',
     'app.services',
     'app.reports',
@@ -100,11 +119,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydb',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'mydb'),
+        'USER': os.environ.get('DB_USER', 'myuser'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'mypassword'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -158,6 +177,8 @@ LOGIN_REDIRECT_URL = "/home/"  # after login, go here
 LOGOUT_REDIRECT_URL = "/login/"     # after logout, go here
 LOGIN_URL = "/login/"               # if not logged in, go here
 
+SESSION_COOKIE_NAME = "airscope_sessionid"
 SESSION_COOKIE_AGE = 1800              # 30 mins max
 SESSION_SAVE_EVERY_REQUEST = True      # reset timer on activity
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # optional extra safety
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False # keep cookie alive for SESSION_COOKIE_AGE
+CSRF_COOKIE_NAME = "airscope_csrftoken"

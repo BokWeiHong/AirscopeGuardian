@@ -1,3 +1,4 @@
+# TEMPLATE — run install.sh to deploy. Do not copy manually.
 [Unit]
 Description=Kismet WiFi Scanner (auto-detects monitor-capable adapter)
 Documentation=https://www.kismetwireless.net/
@@ -9,20 +10,20 @@ Before=kismet-ingest.service
 Type=simple
 # Must run as root to set monitor mode and capture raw frames
 User=root
-WorkingDirectory=/home/pi/AirscopeGuardian
+WorkingDirectory=@@PROJECT_DIR@@
 
-Environment="PATH=/home/pi/AirscopeGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PATH=@@PROJECT_DIR@@/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Environment="DJANGO_SETTINGS_MODULE=config.settings"
 Environment="PYTHONUNBUFFERED=1"
 
 # Ensure the log directory exists before anything else
-ExecStartPre=/bin/bash -c 'mkdir -p /home/pi/AirscopeGuardian/kismet/logs && chmod 770 /home/pi/AirscopeGuardian/kismet/logs'
+ExecStartPre=/bin/bash -c 'mkdir -p @@PROJECT_DIR@@/kismet/logs && chmod 770 @@PROJECT_DIR@@/kismet/logs'
 
 # run_kismet.sh: auto-detects the adapter → monitor mode → kismet
-ExecStart=/home/pi/AirscopeGuardian/kismet/root-shell/run_kismet.sh
+ExecStart=@@PROJECT_DIR@@/kismet/root-shell/run_kismet.sh
 
-StandardOutput=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
-StandardError=append:/home/pi/AirscopeGuardian/kismet/logs/kismet_output.log
+StandardOutput=append:@@PROJECT_DIR@@/kismet/logs/kismet_output.log
+StandardError=append:@@PROJECT_DIR@@/kismet/logs/kismet_output.log
 TimeoutStopSec=30
 
 # Restart automatically on crash; give the adapter 10 s to settle on reboot

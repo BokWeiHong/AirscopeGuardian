@@ -3,8 +3,12 @@
 # switch it to monitor mode, and launch Kismet.
 set -euo pipefail
 
-LOG_DIR="/home/pi/AirscopeGuardian/kismet/logs"
-VENV_ACTIVATE="/home/pi/AirscopeGuardian/venv/bin/activate"
+# Resolve project root from this script's location (kismet/root-shell/ -> project root)
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_PROJECT_DIR="$(cd "${_SCRIPT_DIR}/../.." && pwd)"
+
+LOG_DIR="${_PROJECT_DIR}/kismet/logs"
+VENV_ACTIVATE="${_PROJECT_DIR}/venv/bin/activate"
 
 # ---------------------------------------------------------------------------
 # 1. Discover the best interface
