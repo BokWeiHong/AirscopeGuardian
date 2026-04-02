@@ -158,13 +158,8 @@ LOGIN_REDIRECT_URL = "/home/"  # after login, go here
 LOGOUT_REDIRECT_URL = "/login/"     # after logout, go here
 LOGIN_URL = "/login/"               # if not logged in, go here
 
-SESSION_COOKIE_AGE = 28800             # 8 hours
+SESSION_COOKIE_NAME = 'tracker_sessionid'
+SESSION_COOKIE_AGE = 1800             # 30 minutes in seconds
 SESSION_SAVE_EVERY_REQUEST = True      # reset timer on activity
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-
-# Allow CSRF and cookies from all expected origins (LAN IP, localhost)
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://192.168.100.247:8000',
-]
+CSRF_COOKIE_NAME = 'tracker_csrftoken'

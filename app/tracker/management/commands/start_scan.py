@@ -50,8 +50,9 @@ class Command(BaseCommand):
             raise CommandError('Aborting scan setup due to wifi_map.yaml preparation failure.')
 
         try:
+            tracker_python = os.path.join(_BASE_DIR, 'venv', 'bin', 'python')
             tracker_cmd = [
-                '/home/pi/AirscopeGuardian/venv/bin/python',
+                tracker_python,
                 tracker_path,
                 '--map',
                 '--map-file', wifi_map_path,

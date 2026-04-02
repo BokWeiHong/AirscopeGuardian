@@ -255,7 +255,11 @@ try:
         img_map2 = None
 
     print("Initializing screen...")
-    epd.init()
+    try:
+        epd.init()
+    except Exception as _init_err:
+        print(f"FATAL: epd.init() failed: {_init_err}")
+        raise
     epd.Clear(0xFF)
 
     # 1. SETUP CLEAN BASE CANVAS (Only permanent lines and labels)
@@ -359,6 +363,8 @@ try:
 
 except KeyboardInterrupt:    
     print("\nInterrupted by user.")
+except Exception as e:
+    print(f"FATAL: unhandled exception: {e}")
 
 finally:
     print("Showing sleeping image...")

@@ -30,7 +30,27 @@ class Trigger:
         self.history = {}
 
         self._lock = threading.Lock()
-        save_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'app', 'tracker', 'saves')
+        try:
+            from pathlib import Path
+            base = Path(__file__).resolve()
+        except NameError:
+            from pathlib import Path
+            base = Path.cwd()
+
+        # Walk up looking for manage.py (project root). Limit to 8 levels.
+        project_root = None
+        p = base
+        for _ in range(8):
+            if (p / 'manage.py').exists():
+                project_root = p
+                break
+            p = p.parent
+
+        if project_root is None:
+            # Best-effort fallback: move up 4 levels from file (previous behavior)
+            project_root = (base.parent.parent.parent.parent if base.parent is not None else Path.cwd())
+
+        save_dir = os.path.join(str(project_root), 'app', 'tracker', 'saves')
         os.makedirs(save_dir, exist_ok=True)
         self._save_path = os.path.join(save_dir, 'targets.json')
 

@@ -6,7 +6,7 @@
         </button>
     </div>
     <div class="retro-navlinks">
-        <a href="/home/" class="retro-link {% if request.path == '/tracker/' %}retro-link-active{% endif %}">
+        <a href="/home/" class="retro-link {% if request.path == '/home/' %}retro-link-active{% endif %}">
             Home
         </a>
 
@@ -25,6 +25,14 @@
         <a href="/setting/" class="retro-link {% if request.path == '/setting/' %}retro-link-active{% endif %}">
             Setting
         </a>
+
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="retro-link" 
+                    style="background:none; border:none; cursor:pointer; font-family:'Press Start 2P';">
+                Logout
+            </button>
+        </form>
     </div>
 </nav>
 

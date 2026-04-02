@@ -63,6 +63,12 @@
             <form method="post" class="retro-form">
                 {% csrf_token %}
 
+                {% if request.GET.csrf == 'retry' %}
+                    <p style="color:#ffaa00; margin-bottom:10px; font-size:11px;">
+                        Session expired. Please log in again.
+                    </p>
+                {% endif %}
+
                 <div style="margin-top:10px;">
                     <label for="id_username">Username:</label>
                     <input type="text" name="username" id="id_username" class="window-input">
